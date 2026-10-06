@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Deriv Vol Lab — Descriptive Analytics</title>
+  <style>
+    :root {
+      color-scheme: light;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: #18212f;
+      background: #f3f6fa;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; }
+    .banner {
+      position: sticky;
+      z-index: 2;
+      top: 0;
+      padding: 14px 24px;
+      color: #fff;
+      background: #142d4e;
+      text-align: center;
+      font-weight: 700;
+      letter-spacing: .01em;
+      box-shadow: 0 2px 8px #142d4e30;
+    }
+    main { max-width: 1440px; margin: 24px auto; padding: 0 20px 40px; }
+    h1 { margin-bottom: 4px; }
+    .meta, .subtle { color: #58677c; font-size: .92rem; }
+    .status { margin: 18px 0; padding: 12px 16px; border-radius: 8px; background: #e5edf6; }
+    .status.error { color: #842029; background: #f8d7da; }
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin: 20px 0; }
+    .card { padding: 16px; border: 1px solid #e1e7ef; border-radius: 10px; background: #fff; }
+    .card strong { display: block; margin-top: 8px; font-size: 1.3rem; }
+    .table-wrap { overflow-x: auto; border: 1px solid #e1e7ef; border-radius: 10px; background: #fff; }
+    table { width: 100%; border-collapse: collapse; white-space: nowrap; }
+    th, td { padding: 11px 12px; border-bottom: 1px solid #edf0f4; text-align: right; }
+    th { position: sticky; top: 48px; background: #f8fafc; font-size: .82rem; }
+    th:first-child, td:first-child { text-align: left; }
+    th button { padding: 0; border: 0; color: inherit; background: none; font: inherit; font-weight: 700; cursor: pointer; }
+    tr:last-child td { border-bottom: 0; }
+    .quality { display: inline-block; min-width: 74px; padding: 4px 8px; border-radius: 20px; text-align: center; font-size: .78rem; font-weight: 700; }
+    .healthy { color: #176b3a; background: #d9f2e3; }
+    .warning { color: #805500; background: #fff0bf; }
+    .missing { color: #842029; background: #f8d7da; }
+    .heatmap { font-variant-numeric: tabular-nums; border-radius: 5px; }
+    footer { margin-top: 18px; color: #66758a; font-size: .82rem; }
+    @media (max-width: 700px) {
+      .banner { padding: 12px; font-size: .9rem; }
+      main { margin-top: 16px; padding: 0 12px 28px; }
+      th { top: 45px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="banner">Descriptive analytics on random processes. No predictive edge is implied.</div>
+  <main>
+    <h1>Deriv Vol Lab</h1>
+    <div class="meta">Latest scheduled 60-second candle snapshot · UTC</div>
+    <div id="status" class="status" role="status">Loading latest snapshot…</div>
+    <section class="cards" aria-label="Volatility monitor summary">
+      <div class="card">99% volatility monitor alerts<strong id="alerts">—</strong></div>
+      <div class="card">Symbols with a qualifying monitor window<strong id="monitor-count">—</strong></div>
+      <div class="card">Stored candles in snapshot<strong id="candle-count">—</strong></div>
+    </section>
+    <h2>Latest descriptive screen</h2>
+    <p class="subtle">Select a column heading to sort. Vol ratio shading compares realized and stated volatility; it is a descriptive diagnostic, not a signal.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr id="head"></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+    <footer>Unadjusted reliability p-values are exploratory; adjusted values use Benjamini–Hochberg across available flags and symbols. Synthetic indices have no volume or order flow.</footer>
+  </main>
+  <script>
+    const columns = [
+      ["symbol", "Symbol"], ["price", "Price"], ["rsi", "RSI"],
+      ["bollinger_z", "Bollinger z"], ["ema20_50_trend", "EMA20/50 trend"],
+      ["realised_vol", "Realized vol"], ["stated_vol", "Stated vol"],
+      ["vol_ratio", "Vol ratio"], ["rolling_autocorrelation", "Autocorr"],
+      ["hurst", "Hurst"], ["flags", "Descriptive flags"], ["quality", "Data quality"]
+    ];
+    let screenRows = [];
+    let qualityBySymbol = new Map();
+    let sortState = { key: "symbol", direction: 1 };
+    const head = document.getElementById("head");
+    const body = document.getElementById("rows");
+    const status = document.getElementById("status");
+
+    function display(value, digits = 4) {
+      return typeof value === "number" && Number.isFinite(value) ? value.toFixed(digits) : "—";
+    }
+    function ratioColor(value) {
+      if (typeof value !== "number" || !Number.isFinite(value)) return "";
+      const capped = Math.max(0, Math.min(2, value));
+      const distance = Math.min(1, Math.abs(capped - 1) / 1);
+      const red = capped > 1 ? 255 : Math.round(255 - 48 * distance);
+      const green = capped < 1 ? 230 : Math.round(230 - 92 * distance);
+      const blue = Math.round(180 - 75 * distance);
+      return `background: rgb(${red}, ${green}, ${blue});`;
+    }
+    function sortValue(row, key) {
+      if (key === "quality") return qualityBySymbol.get(row.symbol)?.status ?? "missing";
+      return row[key];
+    }
+    function render() {
+      const sorted = [...screenRows].sort((left, right) => {
+        const a = sortValue(left, sortState.key);
+        const b = sortValue(right, sortState.key);
+        if (typeof a === "number" && typeof b === "number") return (a - b) * sortState.direction;
+        return String(a ?? "").localeCompare(String(b ?? "")) * sortState.direction;
+      });
+      body.replaceChildren();
+      for (const row of sorted) {
+        const quality = qualityBySymbol.get(row.symbol) ?? {status: "missing", coverage_pct: null};
+        const tr = document.createElement("tr");
+        const values = [
+          row.symbol, display(row.price, 5), display(row.rsi, 2), display(row.bollinger_z, 2),
+          row.ema20_50_trend, display(row.realised_vol, 3), display(row.stated_vol, 3),
+          row.vol_ratio, display(row.rolling_autocorrelation, 3), display(row.hurst, 3),
+          (row.flags ?? []).join(", ") || "—", quality
+        ];
+        values.forEach((value, index) => {
+          const td = document.createElement("td");
+          if (index === 7) {
+            td.className = "heatmap";
+            td.style.cssText = ratioColor(value);
+            td.textContent = display(value, 3);
+          } else if (index === 11) {
+            const badge = document.createElement("span");
+            badge.className = `quality ${value.status}`;
+            badge.textContent = value.status === "missing" ? "missing" : `${value.status} ${display(value.coverage_pct, 1)}%`;
+            td.append(badge);
+          } else {
+            td.textContent = String(value);
+          }
+          tr.append(td);
+        });
+        body.append(tr);
+      }
+    }
+    columns.forEach(([key, title]) => {
+      const th = document.createElement("th");
+      const button = document.createElement("button");
+      button.type = "button";
+      button.textContent = title;
+      button.addEventListener("click", () => {
+        sortState = {key, direction: sortState.key === key ? -sortState.direction : 1};
+        render();
+      });
+      th.append(button);
+      head.append(th);
+    });
+    async function load() {
+      try {
+        const [screenResponse, qualityResponse, statsResponse] = await Promise.all([
+          fetch("/screen"), fetch("/data-quality"), fetch("/stats/vol-monitor")
+        ]);
+        for (const response of [screenResponse, qualityResponse, statsResponse]) {
+          if (!response.ok) throw new Error(`Snapshot API returned HTTP ${response.status}`);
+        }
+        const [screenData, qualityData, statsData] = await Promise.all([
+          screenResponse.json(), qualityResponse.json(), statsResponse.json()
+        ]);
+        qualityBySymbol = new Map(qualityData.by_symbol.map(item => [item.symbol, item]));
+        const screenBySymbol = new Map(screenData.rows.map(item => [item.symbol, item]));
+        screenRows = qualityData.by_symbol.map(item => screenBySymbol.get(item.symbol) ?? {
+          symbol: item.symbol, price: null, rsi: null, bollinger_z: null,
+          ema20_50_trend: "insufficient_data", realised_vol: null, stated_vol: null,
+          vol_ratio: null, rolling_autocorrelation: null, hurst: null, flags: []
+        });
+        const alerts = statsData.report.windows.filter(item => item.alert).length;
+        document.getElementById("alerts").textContent = String(alerts);
+        document.getElementById("monitor-count").textContent = String(statsData.report.windows.length);
+        document.getElementById("candle-count").textContent = String(qualityData.report.daily_coverage.reduce((sum, item) => sum + item.observed_records, 0));
+        const generated = new Date(screenData.generated_at_epoch * 1000).toISOString();
+        status.className = "status";
+        status.textContent = `Snapshot generated ${generated}. ${screenRows.length} symbols available.`;
+        render();
+      } catch (error) {
+        status.className = "status error";
+        status.textContent = `Latest snapshot unavailable: ${error.message}`;
+      }
+    }
+    load();
+  </script>
+</body>
+</html>
