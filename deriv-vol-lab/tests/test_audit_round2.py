@@ -9,14 +9,14 @@ import numpy as np
 import pandas as pd
 import pytest
 
+from deriv_vol_lab.api import snapshot as snapshot_module
+from deriv_vol_lab.api.snapshot import build_snapshot
 from deriv_vol_lab.backtest import (
     ProductSpec,
     backtest,
     forward_trade_returns,
     walk_forward_backtest,
 )
-from deriv_vol_lab.api import snapshot as snapshot_module
-from deriv_vol_lab.api.snapshot import build_snapshot
 from deriv_vol_lab.data import Candle
 from deriv_vol_lab.features import screen_candles, wilder_rsi
 from deriv_vol_lab.stats.analysis import (

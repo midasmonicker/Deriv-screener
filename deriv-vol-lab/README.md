@@ -49,6 +49,25 @@ the missing history. `quality_report(records=raw_observations)` checks raw
 input order and duplicate epochs before the unique-key upsert, as well as
 non-positive prices, >8-sigma local log-return jumps, and UTC daily coverage.
 
+### Live three-day smoke check
+
+After installing the project, run the network smoke check manually:
+
+```sh
+DERIV_APP_ID=your-public-app-id python scripts/smoke_live.py
+```
+
+It uses only Deriv's public market-data WebSocket API (no auth token or trading
+scopes), backfills three days of 60-second candles for every registered
+volatility symbol, and idempotently stores them in the local DuckDB file
+configured by `DB_PATH` (default `data/deriv-vol-lab.duckdb`). It prints
+per-symbol missing-candle counts, coverage, and the latest valid realized-to-
+stated volatility ratio with its 99% confidence interval. Insufficient valid
+volatility history is reported as an alert. The script exits non-zero if any
+symbol has coverage below 99%, insufficient volatility history, or a stated
+volatility outside its 99% interval. This intentionally networked check is
+manual and is not part of CI.
+
 ## Features
 
 `deriv_vol_lab.features` provides causal, pandas-index-aligned indicators:
