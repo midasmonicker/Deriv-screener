@@ -63,11 +63,19 @@ sampling granularity in seconds.
 per-flag forward-return reliability fields. Candle epochs must be unique; gaps
 split the data into contiguous segments so rolling features and outcomes do not
 span missing candles. Realized volatility is annualized using the observed
-elapsed seconds in each rolling window.
+elapsed seconds in each rolling window. Reliability uses the same cost-aware
+forward-trade calculation as the backtester: a signal known at candle close
+enters at the next candle's open and exits at the close of candle `t+h`; product
+costs and stop-out terms are supplied through `ProductSpec`.
 
-The default chronological partition of the requested lookback is 60%
-calibration, 10% later holdout evaluation, and 30% current display. The latest
-contiguous segment within calibration supplies historical flag edges and
+The requested lookback is partitioned chronologically at floored integer
+cutoffs: `calibration_end = floor(N * calibration_fraction)` and
+`evaluation_end = floor(N * (calibration_fraction + evaluation_fraction))`.
+The default fractions are 60% calibration, 10% later holdout evaluation, and
+the remainder current display; reported candle counts are the resulting
+integer slice lengths and can differ fractionally from those percentages for
+small or non-divisible lookbacks. The latest contiguous segment within
+calibration supplies historical flag edges and
 exploratory p-values, so calibration outcomes do not bridge gaps. The holdout
 is reserved and does not affect either reliability or displayed current features;
 the final display window supplies current screen values. Unadjusted p-values
@@ -103,9 +111,13 @@ contracts. Candle epochs are UTC epoch seconds at candle open; a signal becomes
 available at that candle's close (`epoch + granularity`), enters at the next
 contiguous candle's open, and exits at the execution candle's close (or at a
 configured stop-out). Gaps split execution segments, are not traded across, and
-are counted in the report. The annualized Sharpe uses stake-normalized,
-time-aligned per-candle returns including flat and missing-candle periods, with
-`365*24*3600/granularity` periods per year. Reports also include per-trade mean
+are counted in the report. Annualized Sharpe uses stake-normalized,
+per-candle returns for actually evaluated test candles, including flat
+candles; missing candles and gaps between non-adjacent walk-forward folds are
+not treated as evaluated periods.
+`365*24*3600/granularity` periods per year is applied to those evaluated-candle
+statistics. Pooled drawdown is reported as the worst drawdown among individual
+test folds, without stitching their equity curves. Reports also include per-trade mean
 and standard deviation of net PnL, max drawdown, expectancy, net win rate, and
 payout-implied break-even rate, plus expanding-window walk-forward
 out-of-sample summaries. Pooled walk-forward reports reject overlapping test
@@ -171,8 +183,10 @@ repository, so do not add secrets or private data to it. The first dashboard
 deployment reports a degraded health state until the scheduled job publishes
 its first snapshot.
 
-The volatility monitor uses a 500-return 99% chi-square window with a
+The volatility monitor uses a 500-valid-return 99% chi-square window with a
 60-second sampling interval (the candle cadence, not each symbol's faster
-native tick cadence). The endpoint serves the latest window per symbol. A
-missing window means there is not yet sufficient snapshot history; it is not
-interpreted as a passing volatility check.
+native tick cadence). Returns spanning missing candles are excluded rather
+than annualized at the candle rate. The endpoint serves the latest valid
+window per symbol, or an `insufficient_data` status with no alert when fewer
+than 500 valid returns are available; insufficient history is not interpreted
+as a passing volatility check.

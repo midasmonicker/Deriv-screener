@@ -6,8 +6,10 @@ from collections.abc import Mapping, Sequence
 from math import isfinite, log, nan
 from typing import Final
 
+import numpy as np
 import pandas as pd
 
+from deriv_vol_lab.backtest.engine import ProductSpec, TradeResult, forward_trade_returns
 from deriv_vol_lab.data.models import Candle
 from deriv_vol_lab.data.symbols import SYMBOLS, SymbolDefinition
 from deriv_vol_lab.features.indicators import (
@@ -18,7 +20,7 @@ from deriv_vol_lab.features.indicators import (
     rolling_variance_ratio,
     wilder_rsi,
 )
-from deriv_vol_lab.stats.analysis import benjamini_hochberg, evaluate_signal
+from deriv_vol_lab.stats.analysis import benjamini_hochberg
 
 SECONDS_PER_YEAR: Final[int] = 365 * 24 * 60 * 60
 
@@ -48,6 +50,9 @@ SCREEN_COLUMNS: Final[tuple[str, ...]] = (
     "hurst",
     "variance_ratio",
     "flags",
+    "calibration_candles",
+    "evaluation_candles",
+    "display_candles",
     *(
         column
         for flag in FLAG_NAMES
@@ -69,6 +74,7 @@ def screen_candles(
     permutations: int = 499,
     calibration_fraction: float = 0.6,
     evaluation_fraction: float = 0.1,
+    product: ProductSpec | None = None,
     seed: int,
 ) -> pd.DataFrame:
     """Screen latest candles while isolating calibration and holdout windows.
@@ -86,6 +92,12 @@ def screen_candles(
     volatility ratio outside [0.5, 1.5], trending Hurst > 0.55 with variance
     ratio > 1, and mean-reverting Hurst < 0.45 with variance ratio < 1.
     """
+    selected_product = product or ProductSpec(
+        contract_type="multiplier",
+        stake=1.0,
+        multiplier=1.0,
+        stop_out_fraction=1.0,
+    )
     if latest_n <= 0:
         raise ValueError("latest_n must be greater than zero")
     if permutations <= 0:
@@ -114,9 +126,7 @@ def screen_candles(
             raise ValueError(f"Candles for {symbol} contain duplicate epochs")
         calibration_end = int(len(ordered) * calibration_fraction)
         evaluation_end = int(len(ordered) * (calibration_fraction + evaluation_fraction))
-        calibration_segments = [
-            _frame(segment) for segment in _split_segments(ordered[:calibration_end])
-        ]
+        calibration_segments = _split_segments(ordered[:calibration_end])
         display_segments = _split_segments(ordered[evaluation_end:])
         if not display_segments:
             continue
@@ -126,9 +136,13 @@ def screen_candles(
             definition,
             _frame(display_segment),
             calibration_segments[-1:],
+            product=selected_product,
             permutations=permutations,
             seed=seed,
         )
+        result["calibration_candles"] = calibration_end
+        result["evaluation_candles"] = evaluation_end - calibration_end
+        result["display_candles"] = len(ordered) - evaluation_end
         rows.append(result)
 
     result_frame = pd.DataFrame(rows, columns=SCREEN_COLUMNS)
@@ -177,8 +191,9 @@ def _screen_symbol(
     symbol: str,
     definition: SymbolDefinition,
     frame: pd.DataFrame,
-    calibration_segments: Sequence[pd.DataFrame],
+    calibration_segments: Sequence[Sequence[Candle]],
     *,
+    product: ProductSpec,
     permutations: int,
     seed: int,
 ) -> dict[str, object]:
@@ -231,15 +246,15 @@ def _screen_symbol(
         "variance_ratio": current_variance_ratio,
         "flags": tuple(active_flags),
     }
+    calibration_frames = [_frame(segment) for segment in calibration_segments]
     calibration_features = [
         _feature_flag_series(calibration_frame, definition)
-        for calibration_frame in calibration_segments
+        for calibration_frame in calibration_frames
     ]
     for flag_name in FLAG_NAMES:
         calibration_flags: list[pd.Series[float]] = []
-        calibration_close: list[pd.Series[float]] = []
-        for calibration_frame, features in zip(
-            calibration_segments,
+        for _calibration_frame, features in zip(
+            calibration_frames,
             calibration_features,
             strict=True,
         ):
@@ -247,14 +262,14 @@ def _screen_symbol(
             if not flag_values.empty:
                 flag_values.iloc[-1] = 0.0
             calibration_flags.append(flag_values)
-            calibration_close.append(calibration_frame["close"].astype(float))
         _add_reliability(
             row,
             flag_name,
             pd.concat(calibration_flags) if calibration_flags else pd.Series(dtype=float),
-            pd.concat(calibration_close) if calibration_close else pd.Series(dtype=float),
+            [candle for segment in calibration_segments for candle in segment],
             permutations=permutations,
             seed=_flag_seed(seed, symbol, flag_name),
+            product=product,
         )
     return row
 
@@ -322,10 +337,11 @@ def _add_reliability(
     row: dict[str, object],
     flag_name: str,
     signal: pd.Series[float],
-    close: pd.Series[float],
+    candles: Sequence[Candle],
     *,
     permutations: int,
     seed: int,
+    product: ProductSpec,
 ) -> None:
     evaluable_events = int(signal.iloc[:-RELIABILITY_HORIZON].fillna(0).sum())
     columns = (
@@ -342,19 +358,49 @@ def _add_reliability(
         row[columns[3]] = nan
         row[columns[4]] = evaluable_events
         return
-    evaluation = evaluate_signal(
-        signal,
-        close,
-        horizons=(RELIABILITY_HORIZON,),
-        permutations=permutations,
-        seed=seed,
+    epochs = pd.Index([candle.epoch for candle in candles])
+    aligned_signal = pd.Series(signal.to_numpy(dtype=float), index=epochs)
+    observed_trades = forward_trade_returns(
+        candles,
+        aligned_signal,
+        product,
+        horizon=RELIABILITY_HORIZON,
     )
-    result = evaluation.horizons[0]
-    row[columns[0]] = result.mean_signed_forward_return
-    row[columns[1]] = result.permutation_p_value
+    observed_returns = _net_trade_returns(observed_trades, product)
+    if not observed_returns:
+        row[columns[0]] = nan
+        row[columns[1]] = nan
+        row[columns[2]] = nan
+        row[columns[3]] = nan
+        row[columns[4]] = 0
+        return
+    observed_edge = float(pd.Series(observed_returns).mean())
+    generator = np.random.default_rng(seed)
+    signal_values = aligned_signal.to_numpy(dtype=float)
+    permutation_statistics = np.empty(permutations, dtype=float)
+    for permutation in range(permutations):
+        offset = int(generator.integers(1, len(signal_values)))
+        shifted = pd.Series(np.roll(signal_values, offset), index=epochs)
+        shifted_trades = forward_trade_returns(candles, shifted, product)
+        shifted_returns = _net_trade_returns(shifted_trades, product)
+        permutation_statistics[permutation] = (
+            float(np.mean(shifted_returns)) if shifted_returns else 0.0
+        )
+    p_value = float(
+        (1 + np.count_nonzero(np.abs(permutation_statistics) >= abs(observed_edge)))
+        / (permutations + 1)
+    )
+    row[columns[0]] = observed_edge
+    row[columns[1]] = p_value
     row[columns[2]] = nan
-    row[columns[3]] = result.hit_rate
-    row[columns[4]] = result.observations
+    row[columns[3]] = float(
+        np.count_nonzero(np.asarray(observed_returns) > 0) / len(observed_returns)
+    )
+    row[columns[4]] = len(observed_returns)
+
+
+def _net_trade_returns(trades: Sequence[TradeResult], product: ProductSpec) -> list[float]:
+    return [trade.net_pnl / product.stake for trade in trades]
 
 
 def _flag_seed(seed: int, symbol: str, flag: str) -> int:

@@ -130,6 +130,7 @@ class WalkForwardReport(BaseModel):
 
     windows: list[WalkForwardWindow]
     out_of_sample: BacktestReport
+    worst_fold_drawdown: float = 0.0
 
 
 class RealityCheckResult(BaseModel):
@@ -166,17 +167,7 @@ def backtest(
     if not signal.index.equals(pd.Index([item.epoch for item in candles])):
         raise ValueError("signal index must equal candle epochs in chronological order")
 
-    trades: list[TradeResult] = []
-    numeric_signals = signal.to_numpy(dtype=float)
-    for decision_position in range(len(candles) - 1):
-        raw_signal = numeric_signals[decision_position]
-        if not np.isfinite(raw_signal) or raw_signal == 0:
-            continue
-        direction: Literal[-1, 1] = 1 if raw_signal > 0 else -1
-        entry_bar = candles[decision_position + 1]
-        if not _are_contiguous(candles[decision_position], entry_bar):
-            continue
-        trades.append(_settle_trade(candles[decision_position], entry_bar, direction, product))
+    trades = forward_trade_returns(candles, signal, product)
     return _report(
         trades,
         candles,
@@ -184,6 +175,50 @@ def backtest(
         initial_equity=initial_equity,
         strategy_trials=strategy_trials,
     )
+
+
+def forward_trade_returns(
+    candles: Sequence[Candle],
+    signal: pd.Series[float],
+    product: ProductSpec,
+    *,
+    horizon: int = 1,
+) -> list[TradeResult]:
+    """Settle cost-adjusted returns from close-time signals over candle horizons.
+
+    A signal at candle ``t`` is known at its close, enters at candle ``t+1``
+    open, and exits at candle ``t+horizon`` close. Any gap inside that holding
+    interval suppresses the trade. This is shared by the backtester and
+    screener reliability calculations.
+    """
+    if len(signal) != len(candles):
+        raise ValueError("signal length must match candle count")
+    _positive_int(horizon, "horizon")
+    _validate_candle_sequence(candles)
+    if not signal.index.equals(pd.Index([item.epoch for item in candles])):
+        raise ValueError("signal index must equal candle epochs in chronological order")
+
+    results: list[TradeResult] = []
+    numeric_signals = signal.to_numpy(dtype=float)
+    for decision_position in range(max(0, len(candles) - horizon)):
+        raw_signal = numeric_signals[decision_position]
+        if not np.isfinite(raw_signal) or raw_signal == 0:
+            continue
+        interval = candles[decision_position : decision_position + horizon + 1]
+        if any(not _are_contiguous(left, right) for left, right in pairwise(interval)):
+            continue
+        direction: Literal[-1, 1] = 1 if raw_signal > 0 else -1
+        results.append(
+            _settle_trade(
+                candles[decision_position],
+                interval[1],
+                direction,
+                product,
+                exit_bar=interval[-1],
+                held_bars=interval[1:],
+            )
+        )
+    return results
 
 
 def walk_forward_splits(
@@ -253,28 +288,13 @@ def walk_forward_backtest(
     test_segments: list[Sequence[Candle]] = []
     windows: list[WalkForwardWindow] = []
     for split in splits:
-        fold_trades: list[TradeResult] = []
         fold_candles = candles[split.test_start : split.test_end]
         all_test_candles.extend(fold_candles)
         test_segments.append(fold_candles)
-        for decision_position in range(max(0, split.test_start - 1), split.test_end - 1):
-            execution_position = decision_position + 1
-            if execution_position < split.test_start or execution_position >= split.test_end:
-                continue
-            if not _are_contiguous(candles[decision_position], candles[execution_position]):
-                continue
-            raw_signal = float(signal.iloc[decision_position])
-            if not np.isfinite(raw_signal) or raw_signal == 0:
-                continue
-            direction: Literal[-1, 1] = 1 if raw_signal > 0 else -1
-            fold_trades.append(
-                _settle_trade(
-                    candles[decision_position],
-                    candles[execution_position],
-                    direction,
-                    product,
-                )
-            )
+        context_start = max(0, split.test_start - 1)
+        fold_context = candles[context_start : split.test_end]
+        fold_signal = signal.iloc[context_start : split.test_end]
+        fold_trades = forward_trade_returns(fold_context, fold_signal, product)
         all_trades.extend(fold_trades)
         windows.append(
             WalkForwardWindow(
@@ -288,16 +308,23 @@ def walk_forward_backtest(
                 ),
             )
         )
+    worst_fold_drawdown = max(
+        (window.report.max_drawdown for window in windows),
+        default=0.0,
+    )
+    pooled_report = _report(
+        all_trades,
+        all_test_candles,
+        product,
+        initial_equity=initial_equity,
+        strategy_trials=strategy_trials,
+        timeline_segments=test_segments,
+        drawdown_override=worst_fold_drawdown,
+    )
     return WalkForwardReport(
         windows=windows,
-        out_of_sample=_report(
-            all_trades,
-            all_test_candles,
-            product,
-            initial_equity=initial_equity,
-            strategy_trials=strategy_trials,
-            timeline_segments=test_segments,
-        ),
+        out_of_sample=pooled_report,
+        worst_fold_drawdown=worst_fold_drawdown,
     )
 
 
@@ -387,9 +414,13 @@ def _settle_trade(
     execution_bar: Candle,
     direction: Literal[-1, 1],
     product: ProductSpec,
+    *,
+    exit_bar: Candle | None = None,
+    held_bars: Sequence[Candle] | None = None,
 ) -> TradeResult:
     entry_price = float(execution_bar.open)
-    close_price = float(execution_bar.close)
+    settled_bar = execution_bar if exit_bar is None else exit_bar
+    close_price = float(settled_bar.close)
     exit_price = close_price
     if entry_price <= 0 or close_price <= 0:
         raise ValueError("Backtest candle prices must be greater than zero")
@@ -409,7 +440,12 @@ def _settle_trade(
             raise RuntimeError("Validated multiplier product is missing required terms")
         favorable_return = direction * (close_price - entry_price) / entry_price
         gross_pnl = product.stake * multiplier * favorable_return
-        adverse_price = float(execution_bar.low if direction == 1 else execution_bar.high)
+        adverse_bars = [execution_bar] if held_bars is None else held_bars
+        adverse_price = (
+            min(float(bar.low) for bar in adverse_bars)
+            if direction == 1
+            else max(float(bar.high) for bar in adverse_bars)
+        )
         adverse_return = direction * (adverse_price - entry_price) / entry_price
         if product.stake * multiplier * adverse_return <= -product.stake * stop_out_fraction:
             gross_pnl = -product.stake * stop_out_fraction
@@ -428,7 +464,7 @@ def _settle_trade(
         symbol=execution_bar.symbol,
         decision_epoch=decision_bar.epoch + decision_bar.granularity,
         entry_epoch=execution_bar.epoch,
-        exit_epoch=execution_bar.epoch + execution_bar.granularity,
+        exit_epoch=settled_bar.epoch + settled_bar.granularity,
         direction=direction,
         entry_price=entry_price,
         exit_price=exit_price,
@@ -450,6 +486,7 @@ def _report(
     initial_equity: float,
     strategy_trials: int,
     timeline_segments: Sequence[Sequence[Candle]] | None = None,
+    drawdown_override: float | None = None,
 ) -> BacktestReport:
     pnl = np.asarray([trade.net_pnl for trade in trades], dtype=float)
     segments = [candles] if timeline_segments is None else timeline_segments
@@ -466,15 +503,18 @@ def _report(
     else:
         periods_per_year = 0.0
     if pnl.size:
-        equity = initial_equity + np.cumsum(pnl)
-        peaks = np.maximum.accumulate(np.concatenate(([initial_equity], equity)))[1:]
-        drawdowns = (peaks - equity) / peaks
         per_trade_mean = float(pnl.mean())
         per_trade_std = float(pnl.std(ddof=1)) if pnl.size > 1 else 0.0
         win_rate = float(np.count_nonzero(pnl > 0) / pnl.size)
         net_sum = float(pnl.sum())
         expectancy = float(pnl.mean())
-        max_drawdown = float(np.max(drawdowns))
+        if drawdown_override is None:
+            equity = initial_equity + np.cumsum(pnl)
+            peaks = np.maximum.accumulate(np.concatenate(([initial_equity], equity)))[1:]
+            drawdowns = (peaks - equity) / peaks
+            max_drawdown = float(np.max(drawdowns))
+        else:
+            max_drawdown = drawdown_override
         dsr = (
             deflated_sharpe_ratio((pnl / product.stake).tolist(), strategy_trials)
             if pnl.size > 1
@@ -548,19 +588,15 @@ def _gap_count(candles: Sequence[Candle]) -> int:
 
 
 def _time_aligned_pnl(trades: Sequence[TradeResult], candles: Sequence[Candle]) -> np.ndarray:
-    """Return per-candle PnL, inserting zero-PnL gap bars."""
+    """Return PnL aligned only to the candles actually evaluated."""
     if not candles:
         return np.asarray([], dtype=float)
 
     pnl_by_entry = {trade.entry_epoch: trade.net_pnl for trade in trades}
-    period_pnl: list[float] = []
-    for position, candle in enumerate(candles):
-        if position:
-            previous = candles[position - 1]
-            missing = max(0, ceil((candle.epoch - previous.epoch) / previous.granularity) - 1)
-            period_pnl.extend([0.0] * missing)
-        period_pnl.append(pnl_by_entry.get(candle.epoch, 0.0))
-    return np.asarray(period_pnl, dtype=float)
+    return np.asarray(
+        [pnl_by_entry.get(candle.epoch, 0.0) for candle in candles],
+        dtype=float,
+    )
 
 
 def _finite_1d(values: Sequence[float], name: str, minimum: int) -> np.ndarray:

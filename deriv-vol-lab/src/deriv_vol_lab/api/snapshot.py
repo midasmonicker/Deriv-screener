@@ -16,7 +16,11 @@ from deriv_vol_lab.data.models import Candle
 from deriv_vol_lab.data.quality import DataQualityReport, build_quality_report
 from deriv_vol_lab.data.symbols import SYMBOLS
 from deriv_vol_lab.features import screen_candles
-from deriv_vol_lab.stats.analysis import VolatilityMonitorReport, rolling_volatility_monitor
+from deriv_vol_lab.stats.analysis import (
+    VolatilityMonitorReport,
+    VolatilityWindowResult,
+    rolling_volatility_monitor,
+)
 
 GRANULARITY_SECONDS = 60
 SCREEN_LOOKBACK = 2_000
@@ -32,6 +36,9 @@ class ScreenSnapshotRow(BaseModel):
 
     symbol: str
     epoch: int
+    calibration_candles: int
+    evaluation_candles: int
+    display_candles: int
     price: float | None
     rsi: float | None
     bollinger_z: float | None
@@ -117,18 +124,25 @@ def build_snapshot(
 
     monitor_closes = {
         symbol: pd.Series(
-            [float(candle.close) for candle in candles[-(VOL_MONITOR_WINDOW + 1) :]],
-            index=pd.Index([candle.epoch for candle in candles[-(VOL_MONITOR_WINDOW + 1) :]]),
+            [float(candle.close) for candle in candles],
+            index=pd.Index([candle.epoch for candle in candles]),
             dtype=float,
         )
         for symbol, candles in canonical_candles.items()
-        if len(candles) >= VOL_MONITOR_WINDOW + 1
+        if candles
     }
-    monitor = rolling_volatility_monitor(
+    monitor_history = rolling_volatility_monitor(
         monitor_closes,
         window=VOL_MONITOR_WINDOW,
         confidence_level=0.99,
         sampling_intervals={symbol: GRANULARITY_SECONDS for symbol in monitor_closes},
+    )
+    latest_monitor_window: dict[str, VolatilityWindowResult] = {}
+    for result in monitor_history.windows:
+        latest_monitor_window[result.symbol] = result
+    monitor = VolatilityMonitorReport(
+        confidence_level=monitor_history.confidence_level,
+        windows=list(latest_monitor_window.values()),
     )
     return AnalyticsSnapshot(
         generated_at_epoch=generated_at_epoch,
@@ -183,6 +197,12 @@ def _screen_row(row: Mapping[object, object]) -> ScreenSnapshotRow:
             return float(value)
         return None
 
+    def required_count(column: str) -> int:
+        value = row.get(column)
+        if isinstance(value, bool) or not isinstance(value, int):
+            raise ValueError(f"Screener row is missing its {column}")
+        return value
+
     reliability: dict[str, FlagReliability] = {}
     for flag in (
         "overbought",
@@ -211,6 +231,9 @@ def _screen_row(row: Mapping[object, object]) -> ScreenSnapshotRow:
     return ScreenSnapshotRow(
         symbol=symbol,
         epoch=epoch,
+        calibration_candles=required_count("calibration_candles"),
+        evaluation_candles=required_count("evaluation_candles"),
+        display_candles=required_count("display_candles"),
         price=optional_number(row.get("price")),
         rsi=optional_number(row.get("rsi")),
         bollinger_z=optional_number(row.get("bollinger_z")),

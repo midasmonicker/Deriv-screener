@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Callable, Mapping, Sequence
 from math import sqrt
+from typing import Literal
 
 import numpy as np
 import pandas as pd
@@ -16,17 +17,18 @@ SECONDS_PER_YEAR = 365 * 24 * 60 * 60
 
 
 class VolatilityWindowResult(BaseModel):
-    """A rolling realized-volatility estimate and its confidence interval."""
+    """A valid rolling estimate or explicit insufficient-data status."""
 
     symbol: str
     window_end: int | str
     observations: int
     stated_volatility: float
-    realized_volatility: float
+    status: Literal["ok", "insufficient_data"]
+    realized_volatility: float | None
     confidence_level: float
-    lower_confidence_bound: float
-    upper_confidence_bound: float
-    alert: bool
+    lower_confidence_bound: float | None
+    upper_confidence_bound: float | None
+    alert: bool | None
 
 
 class VolatilityMonitorReport(BaseModel):
@@ -92,6 +94,9 @@ def rolling_volatility_monitor(
     ``sampling_intervals`` when close prices are sampled more slowly than the
     symbol's native tick cadence, such as candles; values are seconds per
     observed price interval and default to each symbol's registered tick rate.
+    Only returns whose adjacent index values differ by that exact interval
+    enter a window. A symbol with fewer than ``window`` valid returns receives
+    an ``insufficient_data`` result with no alert.
     """
     _validate_positive_int(window, "window", minimum=2)
     _validate_probability(confidence_level, "confidence_level")
@@ -100,20 +105,43 @@ def rolling_volatility_monitor(
     for symbol, close in closes.items():
         definition = _symbol_definition(symbol)
         numeric = _validated_positive_prices(close, "close")
-        log_prices = pd.Series(np.log(numeric.to_numpy()), index=numeric.index)
-        returns = log_prices.diff().dropna()
         interval = (
             definition.tick_interval_sec
             if sampling_intervals is None
             else sampling_intervals.get(symbol, definition.tick_interval_sec)
         )
         _validate_positive_int(interval, f"sampling_intervals[{symbol}]", minimum=1)
+        log_prices = np.log(numeric.to_numpy(dtype=np.float64))
+        raw_returns = np.diff(log_prices)
+        elapsed_seconds = _elapsed_seconds(numeric.index)
+        valid = np.isfinite(raw_returns) & (elapsed_seconds == interval)
+        returns = raw_returns[valid]
+        return_epochs = numeric.index[1:][valid]
         annualization = sqrt(SECONDS_PER_YEAR / interval)
         degrees_of_freedom = window - 1
         alpha = 1.0 - confidence_level
 
-        for end_position in range(window, len(returns) + 1):
-            sample = returns.iloc[end_position - window : end_position].to_numpy(dtype=float)
+        if returns.size < window:
+            windows.append(
+                VolatilityWindowResult(
+                    symbol=symbol,
+                    window_end=_index_value(
+                        return_epochs[-1] if return_epochs.size else numeric.index[-1]
+                    ),
+                    observations=int(returns.size),
+                    stated_volatility=definition.stated_vol_pct / 100.0,
+                    status="insufficient_data",
+                    realized_volatility=None,
+                    confidence_level=confidence_level,
+                    lower_confidence_bound=None,
+                    upper_confidence_bound=None,
+                    alert=None,
+                )
+            )
+            continue
+
+        for end_position in range(window, returns.size + 1):
+            sample = returns[end_position - window : end_position]
             sample_variance = float(np.var(sample, ddof=1))
             realized = sqrt(sample_variance) * annualization
             lower = (
@@ -132,13 +160,14 @@ def rolling_volatility_monitor(
                 )
                 * annualization
             )
-            end_index = returns.index[end_position - 1]
+            end_index = return_epochs[end_position - 1]
             windows.append(
                 VolatilityWindowResult(
                     symbol=symbol,
                     window_end=_index_value(end_index),
                     observations=window,
                     stated_volatility=definition.stated_vol_pct / 100.0,
+                    status="ok",
                     realized_volatility=realized,
                     confidence_level=confidence_level,
                     lower_confidence_bound=lower,
@@ -147,6 +176,15 @@ def rolling_volatility_monitor(
                 )
             )
     return VolatilityMonitorReport(confidence_level=confidence_level, windows=windows)
+
+
+def _elapsed_seconds(index: pd.Index) -> np.ndarray:
+    """Convert adjacent numeric epochs or datetimes to elapsed seconds."""
+    if pd.api.types.is_numeric_dtype(index.dtype):
+        return np.diff(index.to_numpy(dtype=np.float64))
+    if isinstance(index, pd.DatetimeIndex):
+        return np.diff(index.to_numpy(dtype="datetime64[ns]")) / np.timedelta64(1, "s")
+    raise ValueError("close index must contain numeric UTC epoch seconds or datetimes")
 
 
 def ljung_box_test(returns: pd.Series[float], lags: int = 10) -> tuple[float, float]:

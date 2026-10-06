@@ -76,12 +76,18 @@ async def test_api_serves_all_read_only_snapshot_views(
     assert screen.status_code == 200
     assert len(screen.json()["rows"]) == len(SYMBOLS)
     assert screen.json()["granularity"] == 60
+    assert screen.json()["rows"][0]["calibration_candles"] == 1
+    assert screen.json()["rows"][0]["evaluation_candles"] == 1
+    assert screen.json()["rows"][0]["display_candles"] == 1
     assert quality.status_code == 200
     assert len(quality.json()["by_symbol"]) == len(SYMBOLS)
     assert quality.json()["by_symbol"][0]["status"] in {"healthy", "warning"}
     assert volatility.status_code == 200
     assert volatility.json()["report"]["confidence_level"] == pytest.approx(0.99)
-    assert volatility.json()["report"]["windows"] == []
+    monitor_windows = volatility.json()["report"]["windows"]
+    assert len(monitor_windows) == len(SYMBOLS)
+    assert all(item["status"] == "insufficient_data" for item in monitor_windows)
+    assert all(item["alert"] is None for item in monitor_windows)
 
 
 async def test_api_reports_missing_snapshot_without_fabricating_data(

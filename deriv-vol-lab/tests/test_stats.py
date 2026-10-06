@@ -73,7 +73,10 @@ def test_volatility_monitor_validation() -> None:
 def test_volatility_monitor_uses_actual_candle_sampling_interval() -> None:
     """Annualization follows 60-second candle sampling rather than native ticks."""
     periodic_returns = np.asarray([0.01, -0.01, 0.02, -0.02])
-    close = pd.Series(np.exp(np.concatenate(([0.0], np.cumsum(periodic_returns)))))
+    close = pd.Series(
+        np.exp(np.concatenate(([0.0], np.cumsum(periodic_returns)))),
+        index=pd.Index(np.arange(5) * 60, name="epoch"),
+    )
     report = rolling_volatility_monitor(
         {"R_75": close},
         window=4,
