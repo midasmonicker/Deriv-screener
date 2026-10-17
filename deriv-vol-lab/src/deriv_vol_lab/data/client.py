@@ -10,7 +10,7 @@ import time
 from collections.abc import AsyncIterator, Mapping
 from decimal import Decimal
 from typing import Any, Literal
-from urllib.parse import urlencode
+from urllib.parse import urlsplit
 
 import structlog
 from pydantic import ValidationError
@@ -18,16 +18,49 @@ from websockets.asyncio.client import ClientConnection
 from websockets.asyncio.client import connect as websocket_connect
 from websockets.exceptions import ConnectionClosed, WebSocketException
 
-from deriv_vol_lab.data.models import Candle, Tick
+from deriv_vol_lab.data.models import ActiveSymbol, Candle, OhlcUpdate, Tick, TickHistory
 from deriv_vol_lab.data.symbols import SYMBOLS
 
 logger = structlog.get_logger(__name__)
 
-DEFAULT_ENDPOINT = "wss://ws.derivws.com/websockets/v3"
+DEFAULT_ENDPOINT = "wss://api.derivws.com/trading/v1/options/ws/public"
 MAX_HISTORY_COUNT = 5000
+MAX_CANDLE_HISTORY_COUNT = 5000
+CANDLE_HISTORY_RESPONSE_LIMIT = 1000
 _VOLATILITY_CODE = re.compile(r"^(?:R_\d+|1HZ\d+V)$")
 _StreamItem = Tick | Candle | BaseException
 _StreamKind = Literal["ticks", "ohlc"]
+
+
+def _connection_diagnostics(error: BaseException) -> dict[str, Any]:
+    """Extract useful, non-secret handshake metadata from a connection error."""
+    diagnostics: dict[str, Any] = {
+        "error": str(error),
+        "error_type": type(error).__name__,
+    }
+    error_number = getattr(error, "errno", None)
+    if error_number is not None:
+        diagnostics["errno"] = error_number
+
+    response = getattr(error, "response", None)
+    status_code = getattr(response, "status_code", getattr(error, "status_code", None))
+    if status_code is not None:
+        diagnostics["http_status"] = status_code
+    reason = getattr(response, "reason_phrase", None)
+    if reason is not None:
+        diagnostics["http_reason"] = reason
+
+    headers = getattr(response, "headers", None)
+    if headers is not None:
+        for header, field in (
+            ("server", "server"),
+            ("cf-ray", "cf_ray"),
+            ("content-type", "content_type"),
+        ):
+            value = headers.get(header)
+            if value is not None:
+                diagnostics[field] = value
+    return diagnostics
 
 
 class DerivAPIError(RuntimeError):
@@ -47,6 +80,20 @@ class ConnectionLostError(ConnectionError):
     """A retryable failure caused by losing the WebSocket connection."""
 
     retryable = True
+
+
+class HandshakeConnectionError(ConnectionError):
+    """Raised after exhausting the configured number of WebSocket handshakes."""
+
+    def __init__(self, host: str, attempts: int, status_code: int | None) -> None:
+        self.host = host
+        self.attempts = attempts
+        self.status_code = status_code
+        status = str(status_code) if status_code is not None else "unknown"
+        super().__init__(
+            f"WebSocket handshake failed after {attempts} attempts "
+            f"(host={host}, HTTP status={status})"
+        )
 
 
 class SubscriptionClosed(RuntimeError):
@@ -110,7 +157,7 @@ class DerivWebSocketClient:
 
     def __init__(
         self,
-        app_id: int,
+        app_id: int | None = None,
         *,
         endpoint: str = DEFAULT_ENDPOINT,
         requests_per_second: float = 5.0,
@@ -119,6 +166,8 @@ class DerivWebSocketClient:
         reconnect_max_delay: float = 30.0,
         request_timeout: float = 30.0,
         jitter_seed: int = 0,
+        max_handshake_attempts: int = 5,
+        **connection_options: Any,
     ) -> None:
         if requests_per_second <= 0:
             raise ValueError("requests_per_second must be greater than zero")
@@ -128,15 +177,37 @@ class DerivWebSocketClient:
             raise ValueError("Reconnect delays must be positive and max must be >= initial")
         if request_timeout <= 0:
             raise ValueError("request_timeout must be greater than zero")
+        if max_handshake_attempts <= 0:
+            raise ValueError("max_handshake_attempts must be greater than zero")
 
-        separator = "&" if "?" in endpoint else "?"
-        self._uri = f"{endpoint}{separator}{urlencode({'app_id': app_id})}"
+        parsed_endpoint = urlsplit(endpoint)
+        if parsed_endpoint.scheme not in {"ws", "wss"} or not parsed_endpoint.hostname:
+            raise ValueError("endpoint must be a valid ws:// or wss:// URL with a hostname")
+
+        self._uri = endpoint
+        self._endpoint_host = parsed_endpoint.hostname
         self._minimum_request_interval = 1 / requests_per_second
         self._heartbeat_interval = heartbeat_interval
         self._reconnect_initial_delay = reconnect_initial_delay
         self._reconnect_max_delay = reconnect_max_delay
         self._request_timeout = request_timeout
+        self._max_handshake_attempts = max_handshake_attempts
         self._rng = random.Random(jitter_seed)
+        self._connection_options = dict(connection_options)
+        if app_id is not None:
+            additional_headers = self._connection_options.get("additional_headers", {})
+            if isinstance(additional_headers, Mapping):
+                self._connection_options["additional_headers"] = {
+                    **additional_headers,
+                    "Deriv-App-ID": str(app_id),
+                }
+            elif isinstance(additional_headers, (list, tuple)):
+                self._connection_options["additional_headers"] = [
+                    *additional_headers,
+                    ("Deriv-App-ID", str(app_id)),
+                ]
+            else:
+                raise ValueError("additional_headers must be a mapping or sequence of pairs")
 
         self._websocket: ClientConnection | None = None
         self._manager_task: asyncio.Task[None] | None = None
@@ -152,11 +223,20 @@ class DerivWebSocketClient:
         self._next_request_at = 0.0
         self._validation_lock = asyncio.Lock()
         self._symbols_validated = False
+        self._connection_failure: HandshakeConnectionError | None = None
+        self._active_symbol_codes: frozenset[str] | None = None
+
+    @property
+    def available_symbols(self) -> frozenset[str]:
+        """Return supported symbols present in the latest active-symbol response."""
+        if self._active_symbol_codes is None:
+            return frozenset(SYMBOLS)
+        return self._active_symbol_codes
 
     async def connect(
         self,
         *,
-        connection_timeout: float = 15.0,
+        connection_timeout: float = 90.0,
         validate_symbols: bool = True,
     ) -> None:
         """Start the connection manager and validate the symbol registry."""
@@ -170,6 +250,8 @@ class DerivWebSocketClient:
             await self._connected.wait()
         if self._closed:
             raise ClientClosedError("Deriv WebSocket client is closed")
+        if self._connection_failure is not None:
+            raise self._connection_failure
         if validate_symbols and not self._symbols_validated:
             async with self._validation_lock:
                 if not self._symbols_validated:
@@ -229,6 +311,8 @@ class DerivWebSocketClient:
             await self._connected.wait()
             if self._closed:
                 raise ClientClosedError("Deriv WebSocket client is closed")
+            if self._connection_failure is not None:
+                raise self._connection_failure
             if self._connected.is_set():
                 break
 
@@ -263,21 +347,23 @@ class DerivWebSocketClient:
 
     async def validate_symbol_registry(self) -> None:
         """Compare the local volatility-index registry with active_symbols."""
-        response = await self.request({"active_symbols": "brief", "product_type": "basic"})
+        response = await self.request({"active_symbols": "brief"})
         active_symbols = response.get("active_symbols")
         if not isinstance(active_symbols, list):
             raise ValueError("Deriv active_symbols response did not contain a symbol list")
 
-        active_codes = {
-            symbol["symbol"]
-            for symbol in active_symbols
-            if isinstance(symbol, dict)
-            and isinstance(symbol.get("symbol"), str)
-            and _VOLATILITY_CODE.fullmatch(symbol["symbol"])
-        }
+        try:
+            active_codes: set[str] = set()
+            for item in active_symbols:
+                definition = ActiveSymbol.model_validate(item)
+                if _VOLATILITY_CODE.fullmatch(definition.underlying_symbol):
+                    active_codes.add(definition.underlying_symbol)
+        except (TypeError, ValidationError) as exc:
+            raise ValueError("Deriv active_symbols response contained malformed symbols") from exc
         registered_codes = set(SYMBOLS)
         missing = sorted(registered_codes - active_codes)
         unregistered = sorted(active_codes - registered_codes)
+        self._active_symbol_codes = frozenset(registered_codes & active_codes)
         if missing or unregistered:
             logger.warning(
                 "symbol_registry_mismatch",
@@ -355,6 +441,9 @@ class DerivWebSocketClient:
         if not 1 <= page_size <= MAX_HISTORY_COUNT:
             raise ValueError(f"page_size must be between 1 and {MAX_HISTORY_COUNT}")
 
+        request_page_size = (
+            min(page_size, MAX_CANDLE_HISTORY_COUNT) if style == "candles" else page_size
+        )
         end = int(time.time()) if end_epoch is None else end_epoch
         start = end - int(days * 86_400)
         cursor = end
@@ -365,9 +454,8 @@ class DerivWebSocketClient:
             payload: dict[str, Any] = {
                 "ticks_history": symbol,
                 "style": style,
-                "count": page_size,
+                "count": request_page_size,
                 "end": cursor,
-                "adjust_start": 1,
             }
             if granularity is not None:
                 payload["granularity"] = granularity
@@ -395,7 +483,10 @@ class DerivWebSocketClient:
                     key = item.epoch
                 results[key] = item
 
-            if oldest <= start or len(page) < page_size:
+            response_hit_candle_limit = (
+                style == "candles" and len(page) == CANDLE_HISTORY_RESPONSE_LIMIT
+            )
+            if oldest <= start or (len(page) < request_page_size and not response_hit_candle_limit):
                 break
             cursor = oldest - 1
 
@@ -419,18 +510,15 @@ class DerivWebSocketClient:
                     for item in candles
                 ]
 
-            history = response.get("history")
-            if not isinstance(history, dict):
+            history_data = response.get("history")
+            if not isinstance(history_data, dict):
                 raise ValueError("Deriv ticks response did not contain history data")
-            times = history.get("times")
-            prices = history.get("prices")
-            if not isinstance(times, list) or not isinstance(prices, list):
-                raise ValueError("Deriv tick history must contain times and prices")
-            if len(times) != len(prices):
+            history = TickHistory.model_validate(history_data)
+            if len(history.times) != len(history.prices):
                 raise ValueError("Deriv tick history times and prices have different lengths")
             return [
                 Tick(symbol=symbol, epoch=epoch, quote=quote)
-                for epoch, quote in zip(times, prices, strict=True)
+                for epoch, quote in zip(history.times, history.prices, strict=True)
             ]
         except (TypeError, ValidationError) as exc:
             raise ValueError("Deriv returned malformed history data") from exc
@@ -490,19 +578,30 @@ class DerivWebSocketClient:
             if not future.done():
                 future.set_exception(error)
 
-    async def _connection_manager(self) -> None:
+    async def _connection_manager(self, **connection_kwargs: Any) -> None:
         delay = self._reconnect_initial_delay
+        attempt = 0
+        handshake_attempts = 0
         while not self._closed:
+            attempt += 1
+            terminal_handshake_error: HandshakeConnectionError | None = None
             websocket: ClientConnection | None = None
             reader_task: asyncio.Task[None] | None = None
             heartbeat_task: asyncio.Task[None] | None = None
             connection_started: float | None = None
-            disconnect_error = ConnectionLostError("Deriv WebSocket disconnected")
+            disconnect_error: ConnectionError = ConnectionLostError("Deriv WebSocket disconnected")
             try:
-                websocket = await websocket_connect(self._uri, ping_interval=None)
+                websocket_options = {
+                    "ping_interval": None,
+                    "compression": None,
+                    **self._connection_options,
+                    **connection_kwargs,
+                }
+                websocket = await websocket_connect(self._uri, **websocket_options)
                 self._websocket = websocket
                 self._subscription_ids.clear()
                 connection_started = asyncio.get_running_loop().time()
+                handshake_attempts = 0
                 self._connected.set()
                 reader_task = asyncio.create_task(self._read_messages(websocket))
                 heartbeat_task = asyncio.create_task(self._heartbeat_loop())
@@ -514,6 +613,12 @@ class DerivWebSocketClient:
                 for finished_task in done:
                     finished_task.result()
                 raise ConnectionError("Deriv WebSocket connection ended")
+            except ClientClosedError as exc:
+                logger.debug(
+                    "deriv_connection_manager_stopped_during_close",
+                    error=str(exc),
+                )
+                return
             except (
                 ConnectionClosed,
                 ConnectionError,
@@ -521,10 +626,28 @@ class DerivWebSocketClient:
                 WebSocketException,
                 TimeoutError,
             ) as exc:
-                if not self._closed:
+                if connection_started is None:
+                    handshake_attempts += 1
+                    if handshake_attempts >= self._max_handshake_attempts:
+                        diagnostics = _connection_diagnostics(exc)
+                        status_code = diagnostics.get("http_status")
+                        terminal_handshake_error = HandshakeConnectionError(
+                            self._endpoint_host or "unknown",
+                            handshake_attempts,
+                            status_code if isinstance(status_code, int) else None,
+                        )
+                        disconnect_error = terminal_handshake_error
+                if not self._closed and terminal_handshake_error is None:
                     logger.warning(
-                        "deriv_websocket_disconnected",
-                        error=str(exc),
+                        (
+                            "deriv_websocket_connection_failed"
+                            if connection_started is None
+                            else "deriv_websocket_disconnected"
+                        ),
+                        **_connection_diagnostics(exc),
+                        endpoint_host=self._endpoint_host,
+                        attempt=attempt,
+                        phase="handshake" if connection_started is None else "connected",
                         reconnect_delay_seconds=delay,
                     )
             except ValueError as exc:
@@ -575,6 +698,10 @@ class DerivWebSocketClient:
                         )
 
             if not self._closed:
+                if terminal_handshake_error is not None:
+                    self._connection_failure = terminal_handshake_error
+                    self._connected.set()
+                    return
                 await asyncio.sleep(self._rng.uniform(0, delay))
                 delay = min(delay * 2, self._reconnect_max_delay)
 
@@ -635,12 +762,15 @@ class DerivWebSocketClient:
                 item = Tick.model_validate(event)
             else:
                 assert handle.granularity is not None
-                item = Candle.model_validate(
-                    {
-                        **event,
-                        "symbol": handle.symbol,
-                        "granularity": handle.granularity,
-                    }
+                update = OhlcUpdate.model_validate(event)
+                item = Candle(
+                    symbol=handle.symbol,
+                    epoch=update.open_time,
+                    open=update.open,
+                    high=update.high,
+                    low=update.low,
+                    close=update.close,
+                    granularity=handle.granularity,
                 )
             handle._enqueue(item)
         except ValidationError as exc:
@@ -650,7 +780,11 @@ class DerivWebSocketClient:
     async def _heartbeat_loop(self) -> None:
         while not self._closed:
             await asyncio.sleep(self._heartbeat_interval)
-            await self.request({"ping": 1})
+            try:
+                await self.request({"ping": 1})
+            except ClientClosedError as exc:
+                logger.debug("deriv_websocket_heartbeat_stopped_during_close", error=str(exc))
+                return
 
     async def _restore_subscriptions(self) -> None:
         for handle in tuple(self._subscriptions.values()):

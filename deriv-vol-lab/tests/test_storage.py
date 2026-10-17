@@ -4,11 +4,13 @@ from collections.abc import Iterator
 from datetime import UTC, datetime
 from decimal import Decimal
 from pathlib import Path
+from time import perf_counter
 
 import duckdb
 import pytest
 
 from deriv_vol_lab.data import (
+    SYMBOLS,
     Candle,
     DuckDBStorage,
     Tick,
@@ -46,6 +48,48 @@ def test_ticks_and_candles_upsert_by_symbol_epoch(storage: DuckDBStorage) -> Non
     assert storage.write_candles([changed_candle]) == 1
     assert storage.read_candles(60) == [changed_candle]
     assert storage._connection.execute("SELECT count(*) FROM candles_60").fetchone() == (1,)
+
+
+@pytest.mark.slow
+def test_bulk_writes_200k_candles_and_is_idempotent(tmp_path: Path) -> None:
+    """A large 13-symbol batch writes within budget and duplicate keys do not grow rows."""
+    database = DuckDBStorage(tmp_path / "bulk-benchmark.duckdb")
+    candles: list[Candle] = []
+    total_candles = 200_000
+    epochs_per_symbol, extra_symbols = divmod(total_candles, len(SYMBOLS))
+    for symbol_index, symbol in enumerate(SYMBOLS):
+        price = Decimal("100")
+        symbol_candle_count = epochs_per_symbol + (symbol_index < extra_symbols)
+        for index in range(symbol_candle_count):
+            price += Decimal("0.0001")
+            candles.append(
+                Candle(
+                    symbol=symbol,
+                    epoch=1_700_000_000 + (symbol_index * total_candles + index) * 60,
+                    open=price,
+                    high=price + Decimal("0.01"),
+                    low=price - Decimal("0.01"),
+                    close=price,
+                    granularity=60,
+                )
+            )
+    assert len(candles) == total_candles
+
+    try:
+        started = perf_counter()
+        assert database.write_candles(candles) == len(candles)
+        first_write_seconds = perf_counter() - started
+        assert first_write_seconds < 120
+        assert database._connection.execute("SELECT count(*) FROM candles_60").fetchone() == (
+            len(candles),
+        )
+
+        assert database.write_candles(candles) == len(candles)
+        assert database._connection.execute("SELECT count(*) FROM candles_60").fetchone() == (
+            len(candles),
+        )
+    finally:
+        database.close()
 
 
 def test_candle_write_requires_one_granularity(storage: DuckDBStorage) -> None:

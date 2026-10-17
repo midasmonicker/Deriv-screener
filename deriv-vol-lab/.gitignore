@@ -9,3 +9,13 @@ __pycache__/
 htmlcov/
 dist/
 build/
+reports/
+data/
+*.duckdb
+.env
+.linux_venv/
+/deriv_vol_lab
+smoke*.txt
+edge_run.txt
+
+*_log.txt

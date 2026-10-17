@@ -9,6 +9,12 @@ from fastapi import FastAPI, HTTPException
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 
+from deriv_vol_lab.api.research import (
+    ResearchSummary,
+    ResearchUnavailableError,
+    default_summary_path,
+    load_research_summary,
+)
 from deriv_vol_lab.api.snapshot import (
     AnalyticsSnapshot,
     ScreenSnapshotRow,
@@ -115,3 +121,12 @@ def volatility_monitor() -> VolatilityMonitorResponse:
         generated_at_epoch=snapshot.generated_at_epoch,
         report=snapshot.volatility_monitor,
     )
+
+
+@app.get("/research/flag-edge", response_model=ResearchSummary)
+def research_flag_edge() -> ResearchSummary:
+    """Return the frozen offline evidence on whether the screener flags have any edge."""
+    try:
+        return load_research_summary(default_summary_path())
+    except ResearchUnavailableError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc

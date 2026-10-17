@@ -36,7 +36,7 @@
     .table-wrap { overflow-x: auto; border: 1px solid #e1e7ef; border-radius: 10px; background: #fff; }
     table { width: 100%; border-collapse: collapse; white-space: nowrap; }
     th, td { padding: 11px 12px; border-bottom: 1px solid #edf0f4; text-align: right; }
-    th { position: sticky; top: 48px; background: #f8fafc; font-size: .82rem; }
+    th { background: #f8fafc; font-size: .82rem; }
     th:first-child, td:first-child { text-align: left; }
     th button { padding: 0; border: 0; color: inherit; background: none; font: inherit; font-weight: 700; cursor: pointer; }
     tr:last-child td { border-bottom: 0; }
@@ -45,11 +45,16 @@
     .warning { color: #805500; background: #fff0bf; }
     .missing { color: #842029; background: #f8d7da; }
     .heatmap { font-variant-numeric: tabular-nums; border-radius: 5px; }
+    .evidence { margin-top: 36px; }
+    .evidence .verdict { padding: 14px 16px; border-left: 4px solid #142d4e; border-radius: 6px; background: #fff; line-height: 1.5; }
+    .evidence .table-wrap { margin: 12px 0 20px; }
+    .evidence ul { margin: 8px 0 0; padding-left: 20px; color: #58677c; font-size: .9rem; line-height: 1.5; }
+    .pos { color: #176b3a; }
+    .neg { color: #842029; }
     footer { margin-top: 18px; color: #66758a; font-size: .82rem; }
     @media (max-width: 700px) {
       .banner { padding: 12px; font-size: .9rem; }
       main { margin-top: 16px; padding: 0 12px 28px; }
-      th { top: 45px; }
     }
   </style>
 </head>
@@ -72,6 +77,25 @@
         <tbody id="rows"></tbody>
       </table>
     </div>
+    <section class="evidence" aria-labelledby="evidence-title">
+      <h2 id="evidence-title">Does any flag have an edge? The evidence</h2>
+      <p class="subtle">Offline research on stored 60-second candles. Each flag was tested on a discovery window and a separate confirmation window, with multiple-testing correction, against seeded random-walk controls.</p>
+      <div id="research-status" class="status" role="status">Loading research summary…</div>
+      <div id="research-verdict" class="verdict" hidden></div>
+      <section class="cards" aria-label="Research summary" id="research-cards" hidden>
+        <div class="card">Hypothesis tests run<strong id="r-tests">—</strong></div>
+        <div class="card">Confirmed pooled edges<strong id="r-confirmed">—</strong></div>
+        <div class="card">Random-data tests passing p&nbsp;&lt;&nbsp;0.05<strong id="r-null-raw">—</strong></div>
+        <div class="card">Random-data tests surviving correction<strong id="r-null-bh">—</strong></div>
+        <div class="card">Data window<strong id="r-window">—</strong></div>
+      </section>
+      <h3>Pooled flags, ranked by corrected confirmation p-value (q)</h3>
+      <div class="table-wrap"><table><thead><tr id="r-head"></tr></thead><tbody id="r-rows"></tbody></table></div>
+      <h3>Fixed-payout break-even (payouts are assumptions)</h3>
+      <div class="table-wrap"><table><thead><tr id="p-head"></tr></thead><tbody id="p-rows"></tbody></table></div>
+      <h3>Limits of this evidence</h3>
+      <ul id="r-caveats"></ul>
+    </section>
     <footer>Unadjusted reliability p-values are exploratory; adjusted values use Benjamini–Hochberg across available flags and symbols. Synthetic indices have no volume or order flow.</footer>
   </main>
   <script>
@@ -184,7 +208,82 @@
         status.textContent = `Latest snapshot unavailable: ${error.message}`;
       }
     }
+    function cell(tr, text, className) {
+      const td = document.createElement("td");
+      td.textContent = text;
+      if (className) td.className = className;
+      tr.append(td);
+    }
+    function headRow(target, titles) {
+      for (const title of titles) {
+        const th = document.createElement("th");
+        th.textContent = title;
+        target.append(th);
+      }
+    }
+    function signed(value, digits) {
+      if (typeof value !== "number" || !Number.isFinite(value)) return "—";
+      return (value > 0 ? "+" : "") + value.toFixed(digits);
+    }
+    function percent(value, digits) {
+      return typeof value === "number" && Number.isFinite(value) ? (value * 100).toFixed(digits) + "%" : "—";
+    }
+    async function loadResearch() {
+      const box = document.getElementById("research-status");
+      try {
+        const response = await fetch("/research/flag-edge");
+        if (!response.ok) throw new Error(`Research API returned HTTP ${response.status}`);
+        const data = await response.json();
+        box.hidden = true;
+        const verdict = document.getElementById("research-verdict");
+        verdict.textContent = data.conclusion;
+        verdict.hidden = false;
+        document.getElementById("research-cards").hidden = false;
+        document.getElementById("r-tests").textContent = String(data.hypothesis_rows);
+        document.getElementById("r-confirmed").textContent = String(data.confirmed_pooled_edges);
+        document.getElementById("r-null-raw").textContent = percent(data.null_control.raw_significant_fraction, 2);
+        document.getElementById("r-null-bh").textContent = percent(data.null_control.bh_surviving_fraction, 2);
+        const w = data.data_window;
+        const first = new Date(w.first_epoch * 1000).toISOString().slice(0, 10);
+        const last = new Date(w.last_epoch * 1000).toISOString().slice(0, 10);
+        document.getElementById("r-window").textContent = `${first} to ${last}`;
+        headRow(document.getElementById("r-head"), ["Flag", "Horizon (candles)", "Direction", "Discovery net bp", "Confirmation net bp", "Confirmation q", "Independent trades"]);
+        const rows = document.getElementById("r-rows");
+        for (const t of data.pooled_tests) {
+          const tr = document.createElement("tr");
+          cell(tr, t.flag);
+          cell(tr, String(t.horizon));
+          cell(tr, t.direction);
+          cell(tr, signed(t.discovery_net_bp, 2), t.discovery_net_bp >= 0 ? "pos" : "neg");
+          cell(tr, signed(t.confirmation_net_bp, 2), t.confirmation_net_bp >= 0 ? "pos" : "neg");
+          cell(tr, t.confirmation_q.toFixed(3));
+          cell(tr, String(t.effective_n));
+          rows.append(tr);
+        }
+        headRow(document.getElementById("p-head"), ["Assumed payout", "Break-even win rate", "Rows above break-even", "Significant after correction", "Smallest q"]);
+        const payoutRows = document.getElementById("p-rows");
+        for (const c of data.payout_checks) {
+          const tr = document.createElement("tr");
+          cell(tr, percent(c.payout, 0));
+          cell(tr, percent(c.break_even_win_rate, 2));
+          cell(tr, `${c.rows_above_break_even} of ${c.rows_tested}`);
+          cell(tr, String(c.bh_significant_rows));
+          cell(tr, c.smallest_bh_q.toFixed(3));
+          payoutRows.append(tr);
+        }
+        const caveats = document.getElementById("r-caveats");
+        for (const text of data.caveats) {
+          const li = document.createElement("li");
+          li.textContent = text;
+          caveats.append(li);
+        }
+      } catch (error) {
+        box.className = "status error";
+        box.textContent = `Research summary unavailable: ${error.message}`;
+      }
+    }
     load();
+    loadResearch();
   </script>
 </body>
 </html>

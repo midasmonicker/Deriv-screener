@@ -1,0 +1,5 @@
+.coverage
+.venv/
+.linux_venv/
+__pycache__/
+*.py[cod]

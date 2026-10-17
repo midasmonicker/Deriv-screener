@@ -5,6 +5,40 @@ from decimal import Decimal
 from pydantic import BaseModel, ConfigDict, field_validator
 
 
+class ActiveSymbol(BaseModel):
+    """Symbol metadata returned by the public market-data endpoint."""
+
+    model_config = ConfigDict(extra="ignore")
+
+    underlying_symbol: str
+    underlying_symbol_name: str | None = None
+    underlying_symbol_type: str | None = None
+    market: str | None = None
+
+
+class TickHistory(BaseModel):
+    """Parallel epoch and price arrays returned by ticks_history."""
+
+    model_config = ConfigDict(extra="ignore")
+
+    prices: list[Decimal]
+    times: list[int]
+
+
+class OhlcUpdate(BaseModel):
+    """Live OHLC update; ``open_time`` is the candle's open epoch."""
+
+    model_config = ConfigDict(extra="ignore")
+
+    open_time: int
+    open: Decimal
+    high: Decimal
+    low: Decimal
+    close: Decimal
+    granularity: int | None = None
+    pip_size: int | None = None
+
+
 class Tick(BaseModel):
     """A single Deriv price tick."""
 
@@ -14,6 +48,9 @@ class Tick(BaseModel):
     epoch: int
     quote: Decimal
     id: str | None = None
+    ask: Decimal | None = None
+    bid: Decimal | None = None
+    pip_size: int | None = None
 
 
 class Candle(BaseModel):

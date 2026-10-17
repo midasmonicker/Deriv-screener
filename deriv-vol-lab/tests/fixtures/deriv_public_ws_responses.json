@@ -1,0 +1,273 @@
+{
+  "ping": {
+    "echo_req": {
+      "ping": 1,
+      "req_id": 10
+    },
+    "msg_type": "ping",
+    "ping": "pong",
+    "req_id": 10
+  },
+  "active_symbols": {
+    "echo_req": {
+      "active_symbols": "brief",
+      "req_id": 11
+    },
+    "msg_type": "active_symbols",
+    "active_symbols": [
+      {
+        "exchange_is_open": 1,
+        "is_trading_suspended": 0,
+        "market": "synthetic_index",
+        "pip_size": 0.001,
+        "subgroup": "synthetics",
+        "submarket": "random_index",
+        "underlying_symbol": "R_10",
+        "underlying_symbol_name": "Volatility 10 Index",
+        "underlying_symbol_type": "stockindex"
+      },
+      {
+        "exchange_is_open": 1,
+        "is_trading_suspended": 0,
+        "market": "synthetic_index",
+        "pip_size": 0.001,
+        "subgroup": "synthetics",
+        "submarket": "random_index",
+        "underlying_symbol": "R_25",
+        "underlying_symbol_name": "Volatility 25 Index",
+        "underlying_symbol_type": "stockindex"
+      },
+      {
+        "exchange_is_open": 1,
+        "is_trading_suspended": 0,
+        "market": "synthetic_index",
+        "pip_size": 0.0001,
+        "subgroup": "synthetics",
+        "submarket": "random_index",
+        "underlying_symbol": "R_50",
+        "underlying_symbol_name": "Volatility 50 Index",
+        "underlying_symbol_type": "stockindex"
+      },
+      {
+        "exchange_is_open": 1,
+        "is_trading_suspended": 0,
+        "market": "synthetic_index",
+        "pip_size": 0.0001,
+        "subgroup": "synthetics",
+        "submarket": "random_index",
+        "underlying_symbol": "R_75",
+        "underlying_symbol_name": "Volatility 75 Index",
+        "underlying_symbol_type": "stockindex"
+      },
+      {
+        "exchange_is_open": 1,
+        "is_trading_suspended": 0,
+        "market": "synthetic_index",
+        "pip_size": 0.01,
+        "subgroup": "synthetics",
+        "submarket": "random_index",
+        "underlying_symbol": "R_100",
+        "underlying_symbol_name": "Volatility 100 Index",
+        "underlying_symbol_type": "stockindex"
+      },
+      {
+        "exchange_is_open": 1,
+        "is_trading_suspended": 0,
+        "market": "synthetic_index",
+        "pip_size": 0.01,
+        "subgroup": "synthetics",
+        "submarket": "random_index",
+        "underlying_symbol": "1HZ10V",
+        "underlying_symbol_name": "Volatility 10 (1s) Index",
+        "underlying_symbol_type": "stockindex"
+      },
+      {
+        "exchange_is_open": 1,
+        "is_trading_suspended": 0,
+        "market": "synthetic_index",
+        "pip_size": 0.01,
+        "subgroup": "synthetics",
+        "submarket": "random_index",
+        "underlying_symbol": "1HZ25V",
+        "underlying_symbol_name": "Volatility 25 (1s) Index",
+        "underlying_symbol_type": "stockindex"
+      },
+      {
+        "exchange_is_open": 1,
+        "is_trading_suspended": 0,
+        "market": "synthetic_index",
+        "pip_size": 0.01,
+        "subgroup": "synthetics",
+        "submarket": "random_index",
+        "underlying_symbol": "1HZ50V",
+        "underlying_symbol_name": "Volatility 50 (1s) Index",
+        "underlying_symbol_type": "stockindex"
+      },
+      {
+        "exchange_is_open": 1,
+        "is_trading_suspended": 0,
+        "market": "synthetic_index",
+        "pip_size": 0.01,
+        "subgroup": "synthetics",
+        "submarket": "random_index",
+        "underlying_symbol": "1HZ75V",
+        "underlying_symbol_name": "Volatility 75 (1s) Index",
+        "underlying_symbol_type": "stockindex"
+      },
+      {
+        "exchange_is_open": 1,
+        "is_trading_suspended": 0,
+        "market": "synthetic_index",
+        "pip_size": 0.01,
+        "subgroup": "synthetics",
+        "submarket": "random_index",
+        "underlying_symbol": "1HZ100V",
+        "underlying_symbol_name": "Volatility 100 (1s) Index",
+        "underlying_symbol_type": "stockindex"
+      },
+      {
+        "exchange_is_open": 1,
+        "is_trading_suspended": 0,
+        "market": "synthetic_index",
+        "pip_size": 0.01,
+        "subgroup": "synthetics",
+        "submarket": "random_index",
+        "underlying_symbol": "1HZ15V",
+        "underlying_symbol_name": "Volatility 15 (1s) Index",
+        "underlying_symbol_type": "stockindex"
+      },
+      {
+        "exchange_is_open": 1,
+        "is_trading_suspended": 0,
+        "market": "synthetic_index",
+        "pip_size": 0.01,
+        "subgroup": "synthetics",
+        "submarket": "random_index",
+        "underlying_symbol": "1HZ30V",
+        "underlying_symbol_name": "Volatility 30 (1s) Index",
+        "underlying_symbol_type": "stockindex"
+      },
+      {
+        "exchange_is_open": 1,
+        "is_trading_suspended": 0,
+        "market": "synthetic_index",
+        "pip_size": 0.01,
+        "subgroup": "synthetics",
+        "submarket": "random_index",
+        "underlying_symbol": "1HZ90V",
+        "underlying_symbol_name": "Volatility 90 (1s) Index",
+        "underlying_symbol_type": "stockindex"
+      }
+    ],
+    "req_id": 11
+  },
+  "ticks_history_ticks": {
+    "echo_req": {
+      "count": 3,
+      "end": "latest",
+      "req_id": 2,
+      "style": "ticks",
+      "ticks_history": "R_100"
+    },
+    "history": {
+      "prices": [
+        628.53,
+        628.65,
+        628.82
+      ],
+      "times": [
+        1791467368,
+        1791467370,
+        1791467372
+      ]
+    },
+    "msg_type": "history",
+    "pip_size": 2,
+    "req_id": 2
+  },
+  "ticks_history_candles": {
+    "candles": [
+      {
+        "close": 628.94,
+        "epoch": 1791467220,
+        "high": 629.11,
+        "low": 627.3,
+        "open": 627.56
+      },
+      {
+        "close": 626.8,
+        "epoch": 1791467280,
+        "high": 628.99,
+        "low": 626.73,
+        "open": 628.99
+      },
+      {
+        "close": 628.82,
+        "epoch": 1791467340,
+        "high": 628.82,
+        "low": 626.8,
+        "open": 626.99
+      }
+    ],
+    "echo_req": {
+      "count": 3,
+      "end": "latest",
+      "granularity": 60,
+      "req_id": 3,
+      "style": "candles",
+      "ticks_history": "R_100"
+    },
+    "msg_type": "candles",
+    "pip_size": 2,
+    "req_id": 3
+  },
+  "tick_subscription": {
+    "echo_req": {
+      "req_id": 4,
+      "subscribe": 1,
+      "ticks": "R_100"
+    },
+    "msg_type": "tick",
+    "req_id": 4,
+    "subscription": {
+      "id": "subscription-test"
+    },
+    "tick": {
+      "ask": 628.59,
+      "bid": 628.39,
+      "epoch": 1791467374,
+      "id": "subscription-test",
+      "pip_size": 2,
+      "quote": 628.49,
+      "symbol": "R_100"
+    }
+  },
+  "ohlc_update": {
+    "echo_req": {
+      "count": 3,
+      "end": "1791467594",
+      "granularity": 60,
+      "req_id": 22,
+      "style": "candles",
+      "subscribe": 1,
+      "ticks_history": "R_100"
+    },
+    "msg_type": "ohlc",
+    "ohlc": {
+      "close": "626.81",
+      "epoch": 1791467594,
+      "granularity": 60,
+      "high": "626.90",
+      "id": "subscription-test",
+      "low": "626.62",
+      "open": "626.62",
+      "open_time": 1791467580,
+      "pip_size": 2,
+      "symbol": "R_100"
+    },
+    "req_id": 22,
+    "subscription": {
+      "id": "subscription-test"
+    }
+  }
+}

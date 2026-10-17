@@ -15,14 +15,19 @@ async def ingest_latest_snapshot(*, days: float = 2.0, seed: int = 0) -> int:
     if days <= 0:
         raise ValueError("days must be greater than zero")
     settings = Settings()
-    if settings.deriv_app_id is None:
-        raise ValueError("DERIV_APP_ID must be configured for scheduled ingestion")
 
-    client = DerivWebSocketClient(settings.deriv_app_id)
+    client = DerivWebSocketClient(
+        settings.deriv_app_id,
+        endpoint=settings.deriv_endpoint,
+        max_handshake_attempts=settings.deriv_handshake_max_attempts,
+    )
     candles_by_symbol: dict[str, list[Candle]] = {}
     try:
         await client.connect(validate_symbols=True)
+        available_symbols = client.available_symbols
         for symbol in SYMBOLS:
+            if symbol not in available_symbols:
+                continue
             candles_by_symbol[symbol] = await client.backfill_candles(
                 symbol,
                 days,

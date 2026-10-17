@@ -5,8 +5,10 @@ from __future__ import annotations
 from math import ceil
 from pathlib import Path
 from typing import TYPE_CHECKING, Literal
+from uuid import uuid4
 
 import duckdb
+import pandas as pd
 
 from deriv_vol_lab.data.models import Candle, Tick
 from deriv_vol_lab.data.quality import DataQualityReport, MarketRecord, build_quality_report
@@ -21,13 +23,22 @@ if TYPE_CHECKING:
 class DuckDBStorage:
     """Synchronous DuckDB storage for ticks and multiple candle intervals."""
 
-    def __init__(self, database_path: Path | str = "data/deriv-vol-lab.duckdb") -> None:
+    def __init__(
+        self,
+        database_path: Path | str = "data/deriv-vol-lab.duckdb",
+        *,
+        read_only: bool = False,
+    ) -> None:
         self.database_path = Path(database_path)
-        if str(database_path) != ":memory:":
+        if read_only and str(database_path) != ":memory:" and not self.database_path.is_file():
+            raise FileNotFoundError(f"DuckDB database does not exist: {self.database_path}")
+        if not read_only and str(database_path) != ":memory:":
             self.database_path.parent.mkdir(parents=True, exist_ok=True)
-        self._connection = duckdb.connect(str(database_path))
+        self._read_only = read_only
+        self._connection = duckdb.connect(str(database_path), read_only=read_only)
         self._closed = False
-        self._create_ticks_table()
+        if not read_only:
+            self._create_ticks_table()
 
     def close(self) -> None:
         """Close the database connection."""
@@ -44,31 +55,46 @@ class DuckDBStorage:
 
     def write_ticks(self, ticks: Sequence[Tick]) -> int:
         """Idempotently insert or update ticks keyed by (symbol, epoch)."""
-        self._ensure_open()
+        self._ensure_writable()
         if not ticks:
             return 0
         connection = self._connection.cursor()
-        connection.begin()
+        batch_name = f"ticks_batch_{uuid4().hex}"
+        batch = pd.DataFrame(
+            {
+                "symbol": [tick.symbol for tick in ticks],
+                "epoch": [tick.epoch for tick in ticks],
+                "quote": [str(tick.quote) for tick in ticks],
+                "tick_id": [tick.id for tick in ticks],
+            }
+        )
+        registered = False
         try:
-            connection.executemany(
-                """
+            connection.register(batch_name, batch)
+            registered = True
+            connection.begin()
+            connection.execute(
+                f"""
                 INSERT INTO ticks (symbol, epoch, quote, tick_id)
-                VALUES (?, ?, ?, ?)
+                SELECT symbol, epoch, CAST(quote AS DECIMAL(38, 18)), tick_id
+                FROM {batch_name}
                 ON CONFLICT (symbol, epoch) DO UPDATE SET
                     quote = excluded.quote,
                     tick_id = excluded.tick_id
-                """,
-                [(tick.symbol, tick.epoch, tick.quote, tick.id) for tick in ticks],
+                """
             )
             connection.commit()
         except Exception:
             connection.rollback()
             raise
+        finally:
+            if registered:
+                connection.unregister(batch_name)
         return len(ticks)
 
     def write_candles(self, candles: Sequence[Candle]) -> int:
         """Idempotently insert or update candles in their granularity table."""
-        self._ensure_open()
+        self._ensure_writable()
         if not candles:
             return 0
         granularities = {candle.granularity for candle in candles}
@@ -78,36 +104,48 @@ class DuckDBStorage:
         table = self._candle_table(granularity)
         self._create_candles_table(granularity)
         connection = self._connection.cursor()
-        connection.begin()
+        batch_name = f"candles_batch_{uuid4().hex}"
+        batch = pd.DataFrame(
+            {
+                "symbol": [candle.symbol for candle in candles],
+                "epoch": [candle.epoch for candle in candles],
+                "open": [str(candle.open) for candle in candles],
+                "high": [str(candle.high) for candle in candles],
+                "low": [str(candle.low) for candle in candles],
+                "close": [str(candle.close) for candle in candles],
+                "granularity": [candle.granularity for candle in candles],
+            }
+        )
+        registered = False
         try:
-            connection.executemany(
+            connection.register(batch_name, batch)
+            registered = True
+            connection.begin()
+            connection.execute(
                 f"""
                 INSERT INTO {table}
                     (symbol, epoch, open, high, low, close, granularity)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
+                SELECT symbol, epoch,
+                    CAST(open AS DECIMAL(38, 18)),
+                    CAST(high AS DECIMAL(38, 18)),
+                    CAST(low AS DECIMAL(38, 18)),
+                    CAST(close AS DECIMAL(38, 18)),
+                    granularity
+                FROM {batch_name}
                 ON CONFLICT (symbol, epoch) DO UPDATE SET
                     open = excluded.open,
                     high = excluded.high,
                     low = excluded.low,
                     close = excluded.close
-                """,
-                [
-                    (
-                        candle.symbol,
-                        candle.epoch,
-                        candle.open,
-                        candle.high,
-                        candle.low,
-                        candle.close,
-                        candle.granularity,
-                    )
-                    for candle in candles
-                ],
+                """
             )
             connection.commit()
         except Exception:
             connection.rollback()
             raise
+        finally:
+            if registered:
+                connection.unregister(batch_name)
         return len(candles)
 
     def read_ticks(
@@ -359,3 +397,8 @@ class DuckDBStorage:
     def _ensure_open(self) -> None:
         if self._closed:
             raise RuntimeError("DuckDB storage is closed")
+
+    def _ensure_writable(self) -> None:
+        self._ensure_open()
+        if self._read_only:
+            raise RuntimeError("DuckDB storage is read-only")

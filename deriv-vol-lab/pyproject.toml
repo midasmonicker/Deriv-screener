@@ -40,7 +40,7 @@ deriv-vol-lab = "deriv_vol_lab.main:main"
 where = ["src"]
 
 [tool.setuptools.package-data]
-deriv_vol_lab = ["api/*.html"]
+deriv_vol_lab = ["api/*.html", "api/*.json"]
 
 [tool.ruff]
 line-length = 100
@@ -60,7 +60,9 @@ warn_unreachable = true
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 asyncio_mode = "auto"
-addopts = "--cov=deriv_vol_lab --cov-report=term-missing --cov-fail-under=85"
+pythonpath = ["."]
+addopts = "--cov=deriv_vol_lab --cov-report=term-missing --cov-fail-under=85 -m 'not slow'"
+markers = ["slow: performance benchmarks excluded from the default test run"]
 
 [tool.coverage.run]
 source = ["deriv_vol_lab"]

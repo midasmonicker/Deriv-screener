@@ -7,10 +7,11 @@ from deriv_vol_lab.data.client import (
     ConnectionLostError,
     DerivAPIError,
     DerivWebSocketClient,
+    HandshakeConnectionError,
     SubscriptionClosed,
     SubscriptionHandle,
 )
-from deriv_vol_lab.data.models import Candle, Tick
+from deriv_vol_lab.data.models import ActiveSymbol, Candle, OhlcUpdate, Tick, TickHistory
 from deriv_vol_lab.data.quality import (
     AbnormalJump,
     DailyCoverage,
@@ -28,6 +29,7 @@ __all__ = [
     "MAX_HISTORY_COUNT",
     "SYMBOLS",
     "AbnormalJump",
+    "ActiveSymbol",
     "Candle",
     "ClientClosedError",
     "ConnectionLostError",
@@ -37,11 +39,14 @@ __all__ = [
     "DerivWebSocketClient",
     "DuckDBStorage",
     "DuplicateEpoch",
+    "HandshakeConnectionError",
     "InvalidPrice",
+    "OhlcUpdate",
     "SubscriptionClosed",
     "SubscriptionHandle",
     "SymbolDefinition",
     "Tick",
+    "TickHistory",
     "TimestampOrderIssue",
     "build_quality_report",
 ]

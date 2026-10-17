@@ -126,8 +126,17 @@ def test_scheduled_ingestion_fetches_all_symbols_and_writes_snapshot(
     client_calls: list[str] = []
 
     class FakeClient:
-        def __init__(self, app_id: int) -> None:
+        def __init__(
+            self,
+            app_id: int | None,
+            *,
+            endpoint: str,
+            max_handshake_attempts: int,
+        ) -> None:
             assert app_id == 123
+            assert endpoint == "wss://api.derivws.com/trading/v1/options/ws/public"
+            assert max_handshake_attempts == 5
+            self.available_symbols = frozenset(SYMBOLS)
 
         async def connect(self, *, validate_symbols: bool) -> None:
             assert validate_symbols
@@ -150,7 +159,12 @@ def test_scheduled_ingestion_fetches_all_symbols_and_writes_snapshot(
     monkeypatch.setattr(
         ingestion,
         "Settings",
-        lambda: SimpleNamespace(deriv_app_id=123, snapshot_path=snapshot_path),
+        lambda: SimpleNamespace(
+            deriv_app_id=123,
+            deriv_endpoint="wss://api.derivws.com/trading/v1/options/ws/public",
+            deriv_handshake_max_attempts=5,
+            snapshot_path=snapshot_path,
+        ),
     )
     monkeypatch.setattr(ingestion, "DerivWebSocketClient", FakeClient)
 

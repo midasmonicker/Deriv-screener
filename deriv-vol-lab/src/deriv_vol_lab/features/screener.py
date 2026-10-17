@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
+from itertools import pairwise
 from math import isfinite, log, nan
 from typing import Final
 
@@ -31,6 +32,13 @@ FLAG_NAMES: Final[tuple[str, ...]] = (
     "trending_regime",
     "mean_reverting_regime",
 )
+FLAG_DEFINITIONS: Final[dict[str, str]] = {
+    "overbought": "Wilder RSI(14) >= 70",
+    "stretched": "absolute Bollinger z-score(20) >= 2",
+    "vol_mismatch": "20-candle realized/stated volatility ratio outside [0.5, 1.5]",
+    "trending_regime": "Hurst R/S(64) > 0.55 and variance ratio(64, 2) > 1",
+    "mean_reverting_regime": "Hurst R/S(64) < 0.45 and variance ratio(64, 2) < 1",
+}
 MIN_RELIABILITY_OBSERVATIONS: Final[int] = 5
 RELIABILITY_HORIZON: Final[int] = 1
 
@@ -313,6 +321,31 @@ def _feature_flag_series(
         hurst_rs(log_returns, window=64),
         rolling_variance_ratio(log_returns, window=64, horizon=2),
     )
+
+
+def causal_flag_series(candles: Sequence[Candle]) -> dict[str, pd.Series[bool]]:
+    """Return every screener flag at each candle using only its contiguous past."""
+    if not candles:
+        return {name: pd.Series(dtype=bool) for name in FLAG_NAMES}
+    symbol = candles[0].symbol
+    granularity = candles[0].granularity
+    epochs = [candle.epoch for candle in candles]
+    if any(candle.symbol != symbol for candle in candles):
+        raise ValueError("Causal flags require candles from one symbol")
+    if any(candle.granularity != granularity for candle in candles):
+        raise ValueError("Causal flags require one granularity")
+    if any(left >= right for left, right in pairwise(epochs)):
+        raise ValueError("Causal flags require unique candles in chronological order")
+
+    definition = _symbol_definition(symbol)
+    index = pd.Index(epochs, name="epoch")
+    result = {name: pd.Series(False, index=index, dtype=bool) for name in FLAG_NAMES}
+    for segment in _split_segments(candles):
+        features = _feature_flag_series(_frame(segment), definition)
+        segment_index = pd.Index([candle.epoch for candle in segment], name="epoch")
+        for name in FLAG_NAMES:
+            result[name].loc[segment_index] = features[name].fillna(False).to_numpy(dtype=bool)
+    return result
 
 
 def _realized_volatility_actual_time(
