@@ -67,3 +67,28 @@ def test_package_entry_point_runs(
     runpy.run_module("deriv_vol_lab", run_name="__main__")
 
     assert "deriv_vol_lab.ready" in capsys.readouterr().out
+
+
+@pytest.mark.parametrize("blank", ["", "   "])
+def test_settings_blank_app_id_is_treated_as_unset(
+    monkeypatch: pytest.MonkeyPatch, blank: str
+) -> None:
+    """GitHub Actions exports an undefined variable as an empty string."""
+    monkeypatch.setenv("DERIV_APP_ID", blank)
+
+    assert Settings().deriv_app_id is None
+
+
+def test_settings_numeric_app_id_still_parses(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("DERIV_APP_ID", "12345")
+
+    assert Settings().deriv_app_id == 12345
+
+
+def test_settings_non_numeric_app_id_is_still_rejected(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("DERIV_APP_ID", "abc")
+
+    with pytest.raises(ValidationError):
+        Settings()

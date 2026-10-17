@@ -26,6 +26,18 @@ class Settings(BaseSettings):
     snapshot_path: Path = Path("snapshots/latest.json")
     log_level: LogLevel = "INFO"
 
+    @field_validator("deriv_app_id", mode="before")
+    @classmethod
+    def blank_app_id_is_unset(cls, value: object) -> object:
+        """Treat a blank DERIV_APP_ID as unset.
+
+        CI systems such as GitHub Actions export an undefined variable as an empty
+        string, and the app ID is optional.
+        """
+        if isinstance(value, str) and not value.strip():
+            return None
+        return value
+
     @field_validator("deriv_endpoint")
     @classmethod
     def validate_deriv_endpoint(cls, value: str) -> str:
