@@ -319,6 +319,13 @@ Market-data ingestion is a separate short-lived process:
 python -m deriv_vol_lab ingest-snapshot --days 2
 ```
 
+Repository layout: this project lives in the `deriv-vol-lab/` folder of the
+`Deriv-screener` repository. GitHub only runs workflows from the repository root,
+so both workflows are in `.github/workflows/` there and run with
+`deriv-vol-lab` as their working directory. When connecting Vercel, set the
+project's Root Directory to `deriv-vol-lab` so `vercel.json` and `api/index.py`
+are found.
+
 The `Scheduled analytics snapshot` GitHub Actions workflow runs every six hours
 and can also be started manually. An application ID is optional; when
 configured as the `DERIV_APP_ID` repository variable, it is sent in the
