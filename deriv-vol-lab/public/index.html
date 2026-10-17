@@ -77,6 +77,22 @@
         <tbody id="rows"></tbody>
       </table>
     </div>
+    <section class="evidence" aria-labelledby="read-title">
+      <h2 id="read-title">Technical read</h2>
+      <p class="subtle" id="read-note">Plain-language reading of each index's candles. It describes what already happened; it does not forecast.</p>
+      <div id="read-status" class="status" role="status">Loading technical read…</div>
+      <div class="table-wrap"><table><thead><tr id="read-head"></tr></thead><tbody id="read-rows"></tbody></table></div>
+    </section>
+    <section class="evidence" aria-labelledby="ledger-title">
+      <h2 id="ledger-title">Prediction ledger: do the technical calls work?</h2>
+      <p class="subtle">Each scheduled run records the calls below <em>before</em> the entry candle opens, then scores them after 5 minutes against the 95% payout break-even (an assumption). The coin-flip row is the control: a method only matters if it clearly beats chance.</p>
+      <div id="ledger-status" class="status" role="status">Loading ledger…</div>
+      <div id="ledger-verdict" class="verdict" hidden></div>
+      <h3>Scorecard</h3>
+      <div class="table-wrap"><table><thead><tr id="l-head"></tr></thead><tbody id="l-rows"></tbody></table></div>
+      <h3>Most recent scored calls</h3>
+      <div class="table-wrap"><table><thead><tr id="lr-head"></tr></thead><tbody id="lr-rows"></tbody></table></div>
+    </section>
     <section class="evidence" aria-labelledby="evidence-title">
       <h2 id="evidence-title">Does any flag have an edge? The evidence</h2>
       <p class="subtle">Offline research on stored 60-second candles. Each flag was tested on a discovery window and a separate confirmation window, with multiple-testing correction, against seeded random-walk controls.</p>
@@ -282,8 +298,81 @@
         box.textContent = `Research summary unavailable: ${error.message}`;
       }
     }
+    function when(epoch) {
+      return typeof epoch === "number" ? new Date(epoch * 1000).toISOString().slice(0, 16).replace("T", " ") + " UTC" : "—";
+    }
+    async function loadRead() {
+      const box = document.getElementById("read-status");
+      try {
+        const response = await fetch("/technical-read");
+        if (!response.ok) throw new Error(`Technical read returned HTTP ${response.status}`);
+        const data = await response.json();
+        box.hidden = true;
+        document.getElementById("read-note").textContent = data.disclaimer;
+        headRow(document.getElementById("read-head"), ["Symbol", "Price", "Trend", "Momentum", "Price vs average", "Volatility", "Behaviour", "Calls the ledger records"]);
+        const rows = document.getElementById("read-rows");
+        for (const item of data.reads) {
+          const tr = document.createElement("tr");
+          cell(tr, item.symbol);
+          cell(tr, display(item.price, 5));
+          cell(tr, item.trend);
+          cell(tr, item.momentum);
+          cell(tr, item.stretch);
+          cell(tr, item.volatility);
+          cell(tr, item.behaviour);
+          cell(tr, item.calls.map(call => `${call.strategy}: ${call.direction}`).join(", ") || "none");
+          rows.append(tr);
+        }
+      } catch (error) {
+        box.className = "status error";
+        box.textContent = `Technical read unavailable: ${error.message}`;
+      }
+    }
+    async function loadLedger() {
+      const box = document.getElementById("ledger-status");
+      try {
+        const response = await fetch("/ledger");
+        if (!response.ok) throw new Error(`Ledger returned HTTP ${response.status}`);
+        const data = await response.json();
+        box.hidden = true;
+        const verdict = document.getElementById("ledger-verdict");
+        verdict.textContent = `${data.headline} Pending calls: ${data.pending_calls}. Last updated: ${when(data.last_updated_epoch)}.`;
+        verdict.hidden = false;
+        headRow(document.getElementById("l-head"), ["Method", "Scored calls", "Wins", "Hit rate", "Break-even", "Corrected p", "Verdict"]);
+        const rows = document.getElementById("l-rows");
+        for (const item of data.strategies) {
+          const tr = document.createElement("tr");
+          cell(tr, item.label);
+          cell(tr, String(item.scored_calls));
+          cell(tr, String(item.wins));
+          cell(tr, percent(item.hit_rate, 1));
+          cell(tr, percent(item.break_even, 1));
+          cell(tr, typeof item.adjusted_p_value === "number" ? item.adjusted_p_value.toFixed(3) : "—");
+          cell(tr, item.verdict);
+          rows.append(tr);
+        }
+        headRow(document.getElementById("lr-head"), ["Signal candle", "Symbol", "Method", "Call", "Entry", "Exit", "Result"]);
+        const recent = document.getElementById("lr-rows");
+        for (const item of data.recent) {
+          const tr = document.createElement("tr");
+          cell(tr, when(item.signal_epoch));
+          cell(tr, item.symbol);
+          cell(tr, item.strategy);
+          cell(tr, item.direction);
+          cell(tr, display(item.entry_price, 5));
+          cell(tr, display(item.exit_price, 5));
+          cell(tr, item.outcome, item.outcome === "win" ? "pos" : item.outcome === "loss" ? "neg" : "");
+          recent.append(tr);
+        }
+      } catch (error) {
+        box.className = "status error";
+        box.textContent = `Ledger unavailable: ${error.message}`;
+      }
+    }
     load();
     loadResearch();
+    loadRead();
+    loadLedger();
   </script>
 </body>
 </html>

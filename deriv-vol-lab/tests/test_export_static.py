@@ -49,7 +49,7 @@ def test_missing_snapshot_still_exports_dashboard_and_research(tmp_path: Path) -
 
     written = export_static.export(out, tmp_path / "absent.json")
 
-    assert sorted(written) == ["flag-edge.json", "index.html"]
+    assert sorted(written) == ["flag-edge.json", "index.html", "ledger.json"]
     assert not (out / "screen.json").exists()
 
 

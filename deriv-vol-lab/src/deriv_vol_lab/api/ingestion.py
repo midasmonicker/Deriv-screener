@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import time
 
+from deriv_vol_lab.api.ledger import load_ledger, update_ledger, write_ledger
 from deriv_vol_lab.api.snapshot import build_snapshot, write_snapshot
 from deriv_vol_lab.data import SYMBOLS, DerivWebSocketClient
 from deriv_vol_lab.data.models import Candle
@@ -42,4 +43,7 @@ async def ingest_latest_snapshot(*, days: float = 2.0, seed: int = 0) -> int:
         seed=seed,
     )
     write_snapshot(snapshot, settings.snapshot_path)
+    ledger_path = settings.snapshot_path.with_name("ledger.json")
+    ledger = load_ledger(ledger_path)
+    write_ledger(update_ledger(ledger, snapshot, candles_by_symbol), ledger_path)
     return snapshot.candle_count

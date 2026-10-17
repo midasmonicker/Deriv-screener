@@ -44,7 +44,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add snapshots/latest.json public
+          git add snapshots/latest.json snapshots/ledger.json public
           if ! git diff --cached --quiet; then
             git commit -m "Update scheduled analytics snapshot"
             git pull --rebase origin "${{ github.event.repository.default_branch }}"

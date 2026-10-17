@@ -9,6 +9,13 @@ from fastapi import FastAPI, HTTPException
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 
+from deriv_vol_lab.api.ledger import (
+    LedgerSummary,
+    LedgerUnavailableError,
+    default_ledger_path,
+    load_ledger,
+    summarise,
+)
 from deriv_vol_lab.api.research import (
     ResearchSummary,
     ResearchUnavailableError,
@@ -23,6 +30,7 @@ from deriv_vol_lab.api.snapshot import (
     default_snapshot_path,
     load_snapshot,
 )
+from deriv_vol_lab.api.technical_read import TechnicalReadResponse, build_technical_read
 from deriv_vol_lab.data.quality import DataQualityReport
 from deriv_vol_lab.stats.analysis import VolatilityMonitorReport
 
@@ -129,4 +137,19 @@ def research_flag_edge() -> ResearchSummary:
     try:
         return load_research_summary(default_summary_path())
     except ResearchUnavailableError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+
+
+@app.get("/technical-read", response_model=TechnicalReadResponse)
+def technical_read() -> TechnicalReadResponse:
+    """Return a plain-language descriptive read per symbol (not a forecast)."""
+    return build_technical_read(_snapshot())
+
+
+@app.get("/ledger", response_model=LedgerSummary)
+def ledger() -> LedgerSummary:
+    """Return the forward-test ledger: how recorded technical calls actually scored."""
+    try:
+        return summarise(load_ledger(default_ledger_path()))
+    except LedgerUnavailableError as exc:
         raise HTTPException(status_code=503, detail=str(exc)) from exc

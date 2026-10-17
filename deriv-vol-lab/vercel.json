@@ -7,6 +7,8 @@
     { "source": "/screen", "destination": "/screen.json" },
     { "source": "/data-quality", "destination": "/data-quality.json" },
     { "source": "/stats/vol-monitor", "destination": "/vol-monitor.json" },
-    { "source": "/research/flag-edge", "destination": "/flag-edge.json" }
+    { "source": "/research/flag-edge", "destination": "/flag-edge.json" },
+    { "source": "/technical-read", "destination": "/technical-read.json" },
+    { "source": "/ledger", "destination": "/ledger.json" }
   ]
 }

@@ -307,7 +307,7 @@ sample correlations are diagnostics and can deviate from zero by chance.
 The FastAPI read-only app is `deriv_vol_lab.api.app:app` and can be run locally
 with `uvicorn deriv_vol_lab.api.app:app`. It exposes `GET /screen`,
 `GET /health`, `GET /data-quality`, `GET /stats/vol-monitor`, and
-`GET /research/flag-edge` (the frozen offline research evidence); the root path
+`GET /research/flag-edge` (the frozen offline research evidence); `GET /technical-read` (plain-language descriptive read per symbol); `GET /ledger` (forward-test scorecard of the recorded technical calls); the root path
 serves the sortable descriptive dashboard. Each endpoint reads the same
 validated JSON snapshot and performs no WebSocket, DuckDB, or background-worker
 work while serving requests. `SNAPSHOT_PATH` defaults to
@@ -350,3 +350,13 @@ than annualized at the candle rate. The endpoint serves the latest valid
 window per symbol, or an `insufficient_data` status with no alert when fewer
 than 500 valid returns are available; insufficient history is not interpreted
 as a passing volatility check.
+
+## Prediction ledger
+
+Each scheduled run scores earlier calls whose 5-candle horizon has closed, then records new
+calls (trend follow, stretch reversion, RSI extremes, plus a coin-flip control) before their
+entry candle opens. Results are judged against the fixed-payout break-even (95% payout assumed)
+with a one-sided exact binomial test, Bonferroni-corrected across the three methods, and no
+verdict is given before 200 scored calls per method. State lives in `snapshots/ledger.json`.
+A flat result counts as a loss. The ledger exists to test technical analysis out-of-sample, not
+to assert that it works.

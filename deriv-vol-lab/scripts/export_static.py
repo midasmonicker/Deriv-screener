@@ -25,12 +25,18 @@ from deriv_vol_lab.api.app import (
     ScreenResponse,
     VolatilityMonitorResponse,
 )
+from deriv_vol_lab.api.ledger import (
+    LedgerUnavailableError,
+    load_ledger,
+    summarise,
+)
 from deriv_vol_lab.api.research import ResearchUnavailableError, load_research_summary
 from deriv_vol_lab.api.snapshot import (
     SnapshotUnavailableError,
     default_snapshot_path,
     load_snapshot,
 )
+from deriv_vol_lab.api.technical_read import build_technical_read
 
 # Public URL path (as the dashboard fetches it) -> static file written to disk.
 ROUTES: dict[str, str] = {
@@ -38,6 +44,8 @@ ROUTES: dict[str, str] = {
     "/data-quality": "data-quality.json",
     "/stats/vol-monitor": "vol-monitor.json",
     "/research/flag-edge": "flag-edge.json",
+    "/technical-read": "technical-read.json",
+    "/ledger": "ledger.json",
 }
 
 
@@ -46,7 +54,11 @@ def _dump(path: Path, model: BaseModel) -> None:
     path.write_text(json.dumps(payload, separators=(",", ":")) + "\n", encoding="utf-8")
 
 
-def export(out_dir: Path, snapshot_path: Path) -> list[str]:
+def export(
+    out_dir: Path,
+    snapshot_path: Path,
+    ledger_path: Path | None = None,
+) -> list[str]:
     """Write the dashboard and all available JSON files; return the names written."""
     out_dir.mkdir(parents=True, exist_ok=True)
     written: list[str] = []
@@ -76,9 +88,17 @@ def export(out_dir: Path, snapshot_path: Path) -> list[str]:
                 report=snapshot.volatility_monitor,
             ),
         }
+        builders["technical-read.json"] = lambda: build_technical_read(snapshot)
         for name, build in builders.items():
             _dump(out_dir / name, build())
             written.append(name)
+
+    try:
+        ledger = load_ledger(ledger_path or snapshot_path.with_name("ledger.json"))
+        _dump(out_dir / "ledger.json", summarise(ledger))
+        written.append("ledger.json")
+    except LedgerUnavailableError as exc:
+        print(f"warning: ledger unreadable ({exc})", file=sys.stderr)
 
     try:
         _dump(out_dir / "flag-edge.json", load_research_summary())
