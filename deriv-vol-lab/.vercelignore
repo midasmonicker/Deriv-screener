@@ -1,0 +1,9 @@
+# Vercel serves only the pre-built static site in public/.
+src
+tests
+scripts
+data
+reports
+uv.lock
+pyproject.toml
+Makefile

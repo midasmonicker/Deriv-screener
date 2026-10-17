@@ -36,11 +36,15 @@ jobs:
           SNAPSHOT_PATH: snapshots/latest.json
           LOG_LEVEL: INFO
         run: python -m deriv_vol_lab ingest-snapshot --days 2 --seed 0
+      - name: Render static site for Vercel
+        env:
+          SNAPSHOT_PATH: snapshots/latest.json
+        run: PYTHONPATH=. python scripts/export_static.py --out public
       - name: Publish new snapshot through the default branch
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add snapshots/latest.json
+          git add snapshots/latest.json public
           if ! git diff --cached --quiet; then
             git commit -m "Update scheduled analytics snapshot"
             git pull --rebase origin "${{ github.event.repository.default_branch }}"

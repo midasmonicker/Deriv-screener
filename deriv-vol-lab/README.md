@@ -323,8 +323,9 @@ Repository layout: this project lives in the `deriv-vol-lab/` folder of the
 `Deriv-screener` repository. GitHub only runs workflows from the repository root,
 so both workflows are in `.github/workflows/` there and run with
 `deriv-vol-lab` as their working directory. When connecting Vercel, set the
-project's Root Directory to `deriv-vol-lab` so `vercel.json` and `api/index.py`
-are found.
+project's Root Directory to `deriv-vol-lab`, Framework Preset to `Other`, and
+leave the build and install commands empty. Vercel serves the pre-rendered
+static site in `public/` (see `vercel.json`); it does not run Python.
 
 The `Scheduled analytics snapshot` GitHub Actions workflow runs every six hours
 and can also be started manually. An application ID is optional; when
@@ -332,9 +333,11 @@ configured as the `DERIV_APP_ID` repository variable, it is sent in the
 `Deriv-App-ID` handshake header. Allow the workflow to write to the default
 branch. It fetches recent 60-second candles over Deriv's public
 WebSocket API, computes screen/quality/volatility-monitor views, and commits the
-latest JSON snapshot. Connecting the repository to Vercel causes that snapshot
-commit to redeploy the read-only Python function; there is no persistent
-WebSocket worker and the deployed function never mutates storage. The generated
+latest JSON snapshot, then renders the dashboard and its JSON endpoints into
+`public/` with `scripts/export_static.py`. Connecting the repository to Vercel
+causes that commit to redeploy the static site; there is no server, no
+persistent WebSocket worker and nothing mutates storage. The live FastAPI app
+(`uvicorn deriv_vol_lab.api.app:app`) is still available for local use. The generated
 snapshot contains public market data and analytics and is committed to the
 repository, so do not add secrets or private data to it. The first dashboard
 deployment reports a degraded health state until the scheduled job publishes
