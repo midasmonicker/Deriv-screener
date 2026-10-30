@@ -1,44 +1,41 @@
 {
-  "generated_at_epoch": 1793314111,
+  "generated_at_epoch": 1793339663,
   "granularity": 60,
   "candle_count": 37440,
   "screen": [
     {
       "symbol": "1HZ100V",
-      "epoch": 1793314080,
+      "epoch": 1793339640,
       "calibration_candles": 1200,
       "evaluation_candles": 200,
       "display_candles": 600,
-      "price": 1223.08,
-      "rsi": 77.16323933606145,
-      "bollinger_z": 1.6489145066811761,
-      "ema20": 1215.1705968624983,
-      "ema50": 1205.7277488099887,
+      "price": 1226.53,
+      "rsi": 53.04733281721293,
+      "bollinger_z": 0.048828729696563426,
+      "ema20": 1226.0688405980143,
+      "ema50": 1223.9818769243334,
       "ema20_50_trend": "ema20_above_ema50",
-      "realised_vol": 1.1138074685750532,
+      "realised_vol": 0.9259067561133764,
       "stated_vol": 1.0,
-      "vol_ratio": 1.1138074685750532,
-      "rolling_autocorrelation": -0.29523037849368355,
-      "hurst": 0.42393894548573474,
-      "variance_ratio": 0.7823759573167148,
-      "flags": [
-        "overbought",
-        "mean_reverting_regime"
-      ],
+      "vol_ratio": 0.9259067561133764,
+      "rolling_autocorrelation": -0.188136730628074,
+      "hurst": 0.5860284260381032,
+      "variance_ratio": 0.8576920925859749,
+      "flags": [],
       "reliability": {
         "overbought": {
-          "edge_calibration": -0.00033585994720838956,
-          "p_value_unadjusted_exploratory": 0.095,
-          "p_value_adjusted": 0.6,
-          "hit_rate": 0.38461538461538464,
-          "observations": 52.0
+          "edge_calibration": -0.0006296007742934747,
+          "p_value_unadjusted_exploratory": 0.025,
+          "p_value_adjusted": 0.5299999999999999,
+          "hit_rate": 0.3103448275862069,
+          "observations": 29.0
         },
         "stretched": {
-          "edge_calibration": 0.00004162664685406611,
-          "p_value_unadjusted_exploratory": 0.745,
-          "p_value_adjusted": 0.8817391304347827,
-          "hit_rate": 0.528,
-          "observations": 125.0
+          "edge_calibration": 0.0000236754744677836,
+          "p_value_unadjusted_exploratory": 0.765,
+          "p_value_adjusted": 0.97,
+          "hit_rate": 0.5294117647058824,
+          "observations": 119.0
         },
         "vol_mismatch": {
           "edge_calibration": null,
@@ -48,113 +45,113 @@
           "observations": 0.0
         },
         "trending_regime": {
-          "edge_calibration": 0.000058117697810921466,
-          "p_value_unadjusted_exploratory": 0.405,
-          "p_value_adjusted": 0.8088888888888889,
-          "hit_rate": 0.5233853006681515,
-          "observations": 449.0
+          "edge_calibration": 0.000017630484281841685,
+          "p_value_unadjusted_exploratory": 0.695,
+          "p_value_adjusted": 0.97,
+          "hit_rate": 0.5036144578313253,
+          "observations": 415.0
         },
         "mean_reverting_regime": {
-          "edge_calibration": 0.00013215360388453326,
-          "p_value_unadjusted_exploratory": 0.61,
-          "p_value_adjusted": 0.8811111111111111,
-          "hit_rate": 0.6,
-          "observations": 35.0
+          "edge_calibration": 6.209125481017877e-6,
+          "p_value_unadjusted_exploratory": 0.97,
+          "p_value_adjusted": 0.97,
+          "hit_rate": 0.5,
+          "observations": 46.0
         }
       }
     },
     {
       "symbol": "1HZ10V",
-      "epoch": 1793314080,
+      "epoch": 1793339640,
       "calibration_candles": 1200,
       "evaluation_candles": 200,
       "display_candles": 600,
-      "price": 9550.02,
-      "rsi": 60.11366957579826,
-      "bollinger_z": 1.1292034862552802,
-      "ema20": 9547.459496022126,
-      "ema50": 9544.85946565843,
-      "ema20_50_trend": "ema20_above_ema50",
-      "realised_vol": 0.11378103272511106,
+      "price": 9542.99,
+      "rsi": 39.51948341364809,
+      "bollinger_z": -1.2799945165769961,
+      "ema20": 9545.904294357904,
+      "ema50": 9546.563785298604,
+      "ema20_50_trend": "ema20_below_ema50",
+      "realised_vol": 0.11823206893763735,
       "stated_vol": 0.1,
-      "vol_ratio": 1.1378103272511104,
-      "rolling_autocorrelation": -0.030714362270267855,
-      "hurst": 0.6192978073554853,
-      "variance_ratio": 0.9220221950055694,
+      "vol_ratio": 1.1823206893763734,
+      "rolling_autocorrelation": -0.15918908971949075,
+      "hurst": 0.6807187125527926,
+      "variance_ratio": 0.9494559769190081,
       "flags": [],
       "reliability": {
         "overbought": {
-          "edge_calibration": 4.606095466723639e-6,
-          "p_value_unadjusted_exploratory": 0.765,
-          "p_value_adjusted": 0.8817391304347827,
-          "hit_rate": 0.5102040816326531,
-          "observations": 98.0
+          "edge_calibration": 0.000015948148137744622,
+          "p_value_unadjusted_exploratory": 0.29,
+          "p_value_adjusted": 0.8538888888888888,
+          "hit_rate": 0.4927536231884058,
+          "observations": 69.0
         },
         "stretched": {
-          "edge_calibration": 0.00002279995346376706,
-          "p_value_unadjusted_exploratory": 0.13,
-          "p_value_adjusted": 0.6,
-          "hit_rate": 0.553030303030303,
+          "edge_calibration": 3.463890121230069e-6,
+          "p_value_unadjusted_exploratory": 0.745,
+          "p_value_adjusted": 0.97,
+          "hit_rate": 0.4772727272727273,
           "observations": 132.0
         },
         "vol_mismatch": {
           "edge_calibration": -0.000012688718944185163,
-          "p_value_unadjusted_exploratory": 0.635,
-          "p_value_adjusted": 0.8817391304347827,
+          "p_value_unadjusted_exploratory": 0.66,
+          "p_value_adjusted": 0.97,
           "hit_rate": 0.47058823529411764,
           "observations": 17.0
         },
         "trending_regime": {
-          "edge_calibration": 6.1780847552850385e-6,
-          "p_value_unadjusted_exploratory": 0.61,
-          "p_value_adjusted": 0.8811111111111111,
-          "hit_rate": 0.5231788079470199,
-          "observations": 453.0
+          "edge_calibration": 6.086053559313884e-6,
+          "p_value_unadjusted_exploratory": 0.285,
+          "p_value_adjusted": 0.8538888888888888,
+          "hit_rate": 0.5061728395061729,
+          "observations": 486.0
         },
         "mean_reverting_regime": {
-          "edge_calibration": 0.000013678984621996632,
-          "p_value_unadjusted_exploratory": 0.47,
-          "p_value_adjusted": 0.872258064516129,
-          "hit_rate": 0.5324675324675324,
-          "observations": 77.0
+          "edge_calibration": 8.434940703497597e-6,
+          "p_value_unadjusted_exploratory": 0.825,
+          "p_value_adjusted": 0.97,
+          "hit_rate": 0.3888888888888889,
+          "observations": 18.0
         }
       }
     },
     {
       "symbol": "1HZ15V",
-      "epoch": 1793314080,
+      "epoch": 1793339640,
       "calibration_candles": 1200,
       "evaluation_candles": 200,
       "display_candles": 600,
-      "price": 13351.988,
-      "rsi": 44.035302397835935,
-      "bollinger_z": 0.2525068167534945,
-      "ema20": 13352.60386663688,
-      "ema50": 13363.911634239586,
-      "ema20_50_trend": "ema20_below_ema50",
-      "realised_vol": 0.1641277200609306,
+      "price": 13359.111,
+      "rsi": 59.76350696850758,
+      "bollinger_z": 0.6799085028337574,
+      "ema20": 13356.067107173956,
+      "ema50": 13345.825196726135,
+      "ema20_50_trend": "ema20_above_ema50",
+      "realised_vol": 0.13025617849420904,
       "stated_vol": 0.15,
-      "vol_ratio": 1.094184800406204,
-      "rolling_autocorrelation": 0.22231734141824067,
-      "hurst": 0.6596165340129382,
-      "variance_ratio": 1.233469193418136,
+      "vol_ratio": 0.868374523294727,
+      "rolling_autocorrelation": -0.028930561546633576,
+      "hurst": 0.5783871675144716,
+      "variance_ratio": 1.0383325889725998,
       "flags": [
         "trending_regime"
       ],
       "reliability": {
         "overbought": {
-          "edge_calibration": 2.7016421759575537e-6,
-          "p_value_unadjusted_exploratory": 0.945,
-          "p_value_adjusted": 0.9635294117647059,
-          "hit_rate": 0.4675324675324675,
-          "observations": 77.0
+          "edge_calibration": 2.9303520265371834e-6,
+          "p_value_unadjusted_exploratory": 0.955,
+          "p_value_adjusted": 0.97,
+          "hit_rate": 0.453125,
+          "observations": 64.0
         },
         "stretched": {
-          "edge_calibration": 0.00001142493454710004,
-          "p_value_unadjusted_exploratory": 0.545,
-          "p_value_adjusted": 0.8811111111111111,
-          "hit_rate": 0.5298013245033113,
-          "observations": 151.0
+          "edge_calibration": 0.00003332850846238453,
+          "p_value_unadjusted_exploratory": 0.085,
+          "p_value_adjusted": 0.5520833333333334,
+          "hit_rate": 0.5671641791044776,
+          "observations": 134.0
         },
         "vol_mismatch": {
           "edge_calibration": null,
@@ -164,231 +161,52 @@
           "observations": 0.0
         },
         "trending_regime": {
-          "edge_calibration": 0.000013964416789034192,
-          "p_value_unadjusted_exploratory": 0.19,
-          "p_value_adjusted": 0.6175,
-          "hit_rate": 0.5251509054325956,
-          "observations": 497.0
+          "edge_calibration": 0.0000195155743511409,
+          "p_value_unadjusted_exploratory": 0.12,
+          "p_value_adjusted": 0.5520833333333334,
+          "hit_rate": 0.5214592274678111,
+          "observations": 466.0
         },
         "mean_reverting_regime": {
-          "edge_calibration": 0.000013647964786435824,
-          "p_value_unadjusted_exploratory": 0.765,
-          "p_value_adjusted": 0.8817391304347827,
-          "hit_rate": 0.5294117647058824,
-          "observations": 17.0
+          "edge_calibration": -2.93876722428307e-6,
+          "p_value_unadjusted_exploratory": 0.95,
+          "p_value_adjusted": 0.97,
+          "hit_rate": 0.5,
+          "observations": 36.0
         }
       }
     },
     {
       "symbol": "1HZ25V",
-      "epoch": 1793314080,
+      "epoch": 1793339640,
       "calibration_candles": 1200,
       "evaluation_candles": 200,
       "display_candles": 600,
-      "price": 930704.65,
-      "rsi": 62.079942935387834,
-      "bollinger_z": 2.6633166321715622,
-      "ema20": 929868.6806269086,
-      "ema50": 930076.7184244929,
+      "price": 939915.33,
+      "rsi": 39.89374852902605,
+      "bollinger_z": -1.4460684299926376,
+      "ema20": 940433.351209566,
+      "ema50": 940752.1419251591,
       "ema20_50_trend": "ema20_below_ema50",
-      "realised_vol": 0.22327027462076637,
+      "realised_vol": 0.19972076401770134,
       "stated_vol": 0.25,
-      "vol_ratio": 0.8930810984830655,
-      "rolling_autocorrelation": -0.28765122289972667,
-      "hurst": 0.5664701715021299,
-      "variance_ratio": 0.7313291213865782,
-      "flags": [
-        "stretched"
-      ],
+      "vol_ratio": 0.7988830560708053,
+      "rolling_autocorrelation": -0.06207867637877288,
+      "hurst": 0.6494453593326077,
+      "variance_ratio": 0.958288787082584,
+      "flags": [],
       "reliability": {
         "overbought": {
-          "edge_calibration": -0.00008945566864284461,
-          "p_value_unadjusted_exploratory": 0.15,
-          "p_value_adjusted": 0.6,
-          "hit_rate": 0.36,
-          "observations": 25.0
+          "edge_calibration": -0.00008534822807893251,
+          "p_value_unadjusted_exploratory": 0.095,
+          "p_value_adjusted": 0.5520833333333334,
+          "hit_rate": 0.41509433962264153,
+          "observations": 53.0
         },
         "stretched": {
-          "edge_calibration": -0.000044997829558208127,
-          "p_value_unadjusted_exploratory": 0.15,
-          "p_value_adjusted": 0.6,
-          "hit_rate": 0.43410852713178294,
-          "observations": 129.0
-        },
-        "vol_mismatch": {
-          "edge_calibration": null,
-          "p_value_unadjusted_exploratory": null,
-          "p_value_adjusted": null,
-          "hit_rate": null,
-          "observations": 0.0
-        },
-        "trending_regime": {
-          "edge_calibration": -8.823894912288136e-6,
-          "p_value_unadjusted_exploratory": 0.505,
-          "p_value_adjusted": 0.872258064516129,
-          "hit_rate": 0.49038461538461536,
-          "observations": 520.0
-        },
-        "mean_reverting_regime": {
-          "edge_calibration": -0.00009802453097322614,
-          "p_value_unadjusted_exploratory": 0.315,
-          "p_value_adjusted": 0.768695652173913,
-          "hit_rate": 0.4666666666666667,
-          "observations": 15.0
-        }
-      }
-    },
-    {
-      "symbol": "1HZ30V",
-      "epoch": 1793314080,
-      "calibration_candles": 1200,
-      "evaluation_candles": 200,
-      "display_candles": 600,
-      "price": 6005.756,
-      "rsi": 37.380280456131324,
-      "bollinger_z": -1.779004882579572,
-      "ema20": 6011.6678245809435,
-      "ema50": 6012.7317978221145,
-      "ema20_50_trend": "ema20_below_ema50",
-      "realised_vol": 0.3223876598148408,
-      "stated_vol": 0.3,
-      "vol_ratio": 1.074625532716136,
-      "rolling_autocorrelation": -0.15888923126723878,
-      "hurst": 0.763745385694332,
-      "variance_ratio": 1.0015320139445194,
-      "flags": [
-        "trending_regime"
-      ],
-      "reliability": {
-        "overbought": {
-          "edge_calibration": -0.00012151179265424043,
-          "p_value_unadjusted_exploratory": 0.135,
-          "p_value_adjusted": 0.6,
-          "hit_rate": 0.24,
-          "observations": 25.0
-        },
-        "stretched": {
-          "edge_calibration": -0.00003740725794444336,
-          "p_value_unadjusted_exploratory": 0.315,
-          "p_value_adjusted": 0.768695652173913,
-          "hit_rate": 0.46153846153846156,
-          "observations": 117.0
-        },
-        "vol_mismatch": {
-          "edge_calibration": null,
-          "p_value_unadjusted_exploratory": null,
-          "p_value_adjusted": null,
-          "hit_rate": null,
-          "observations": 0.0
-        },
-        "trending_regime": {
-          "edge_calibration": -7.767247436200857e-6,
-          "p_value_unadjusted_exploratory": 0.735,
-          "p_value_adjusted": 0.8817391304347827,
-          "hit_rate": 0.5,
-          "observations": 258.0
-        },
-        "mean_reverting_regime": {
-          "edge_calibration": 0.00003427172584061322,
-          "p_value_unadjusted_exploratory": 0.34,
-          "p_value_adjusted": 0.768695652173913,
-          "hit_rate": 0.47413793103448276,
-          "observations": 116.0
-        }
-      }
-    },
-    {
-      "symbol": "1HZ50V",
-      "epoch": 1793314080,
-      "calibration_candles": 1200,
-      "evaluation_candles": 200,
-      "display_candles": 600,
-      "price": 204670.6,
-      "rsi": 36.97728470494632,
-      "bollinger_z": -1.1034496490321197,
-      "ema20": 204959.79182677224,
-      "ema50": 205208.1746191859,
-      "ema20_50_trend": "ema20_below_ema50",
-      "realised_vol": 0.4827587867065034,
-      "stated_vol": 0.5,
-      "vol_ratio": 0.9655175734130068,
-      "rolling_autocorrelation": 0.18897323074752165,
-      "hurst": 0.6872536224619966,
-      "variance_ratio": 1.1655184475898779,
-      "flags": [
-        "trending_regime"
-      ],
-      "reliability": {
-        "overbought": {
-          "edge_calibration": -0.00017947533923320867,
-          "p_value_unadjusted_exploratory": 0.07,
-          "p_value_adjusted": 0.6,
-          "hit_rate": 0.36363636363636365,
-          "observations": 44.0
-        },
-        "stretched": {
-          "edge_calibration": 6.157414398736813e-6,
-          "p_value_unadjusted_exploratory": 0.915,
-          "p_value_adjusted": 0.9516,
-          "hit_rate": 0.5103448275862069,
-          "observations": 145.0
-        },
-        "vol_mismatch": {
-          "edge_calibration": null,
-          "p_value_unadjusted_exploratory": null,
-          "p_value_adjusted": null,
-          "hit_rate": null,
-          "observations": 2.0
-        },
-        "trending_regime": {
-          "edge_calibration": 0.000046729471985382946,
-          "p_value_unadjusted_exploratory": 0.04,
-          "p_value_adjusted": 0.6,
-          "hit_rate": 0.5246913580246914,
-          "observations": 486.0
-        },
-        "mean_reverting_regime": {
-          "edge_calibration": -0.000035670328378696226,
-          "p_value_unadjusted_exploratory": 0.775,
-          "p_value_adjusted": 0.8817391304347827,
-          "hit_rate": 0.4838709677419355,
-          "observations": 31.0
-        }
-      }
-    },
-    {
-      "symbol": "1HZ75V",
-      "epoch": 1793314080,
-      "calibration_candles": 1200,
-      "evaluation_candles": 200,
-      "display_candles": 600,
-      "price": 4975.97,
-      "rsi": 43.44638792438932,
-      "bollinger_z": -1.9040214064559284,
-      "ema20": 4983.650869156762,
-      "ema50": 4975.195729421412,
-      "ema20_50_trend": "ema20_above_ema50",
-      "realised_vol": 0.6165243095595889,
-      "stated_vol": 0.75,
-      "vol_ratio": 0.8220324127461186,
-      "rolling_autocorrelation": 0.07721420457319436,
-      "hurst": 0.6960073951314755,
-      "variance_ratio": 1.0016056606158927,
-      "flags": [
-        "trending_regime"
-      ],
-      "reliability": {
-        "overbought": {
-          "edge_calibration": -0.00017116413294224057,
-          "p_value_unadjusted_exploratory": 0.335,
-          "p_value_adjusted": 0.768695652173913,
-          "hit_rate": 0.3870967741935484,
-          "observations": 31.0
-        },
-        "stretched": {
-          "edge_calibration": 0.00006841446202545911,
-          "p_value_unadjusted_exploratory": 0.4,
-          "p_value_adjusted": 0.8088888888888889,
+          "edge_calibration": -0.000019896481215969176,
+          "p_value_unadjusted_exploratory": 0.48,
+          "p_value_adjusted": 0.9422222222222222,
           "hit_rate": 0.4892086330935252,
           "observations": 139.0
         },
@@ -400,54 +218,56 @@
           "observations": 0.0
         },
         "trending_regime": {
-          "edge_calibration": -0.00005315962366002309,
-          "p_value_unadjusted_exploratory": 0.175,
-          "p_value_adjusted": 0.6066666666666667,
-          "hit_rate": 0.44467640918580376,
-          "observations": 479.0
+          "edge_calibration": 6.0228329196509125e-6,
+          "p_value_unadjusted_exploratory": 0.7,
+          "p_value_adjusted": 0.97,
+          "hit_rate": 0.5066079295154186,
+          "observations": 454.0
         },
         "mean_reverting_regime": {
-          "edge_calibration": 0.00005306894097400352,
-          "p_value_unadjusted_exploratory": 0.605,
-          "p_value_adjusted": 0.8811111111111111,
-          "hit_rate": 0.5157894736842106,
-          "observations": 95.0
+          "edge_calibration": -3.7822528026507973e-6,
+          "p_value_unadjusted_exploratory": 0.96,
+          "p_value_adjusted": 0.97,
+          "hit_rate": 0.4375,
+          "observations": 32.0
         }
       }
     },
     {
-      "symbol": "1HZ90V",
-      "epoch": 1793314080,
+      "symbol": "1HZ30V",
+      "epoch": 1793339640,
       "calibration_candles": 1200,
       "evaluation_candles": 200,
       "display_candles": 600,
-      "price": 27749.949,
-      "rsi": 32.937937757674334,
-      "bollinger_z": -1.8319440518284913,
-      "ema20": 27901.465603301924,
-      "ema50": 27944.16123973686,
+      "price": 6034.656,
+      "rsi": 24.42412706378488,
+      "bollinger_z": -1.8885964601917893,
+      "ema20": 6048.984462720526,
+      "ema50": 6056.495341960835,
       "ema20_50_trend": "ema20_below_ema50",
-      "realised_vol": 1.156820354837512,
-      "stated_vol": 0.9,
-      "vol_ratio": 1.2853559498194578,
-      "rolling_autocorrelation": -0.0837577068841751,
-      "hurst": 0.7869903863641069,
-      "variance_ratio": 0.9162333162530227,
-      "flags": [],
+      "realised_vol": 0.3696320761498304,
+      "stated_vol": 0.3,
+      "vol_ratio": 1.2321069204994348,
+      "rolling_autocorrelation": -0.001986922401649195,
+      "hurst": 0.7415378136591806,
+      "variance_ratio": 1.0100640635170006,
+      "flags": [
+        "trending_regime"
+      ],
       "reliability": {
         "overbought": {
-          "edge_calibration": 5.23607361351225e-6,
-          "p_value_unadjusted_exploratory": 0.97,
-          "p_value_adjusted": 0.97,
-          "hit_rate": 0.5230769230769231,
-          "observations": 65.0
+          "edge_calibration": -0.00017973358613601042,
+          "p_value_unadjusted_exploratory": 0.03,
+          "p_value_adjusted": 0.5299999999999999,
+          "hit_rate": 0.26666666666666666,
+          "observations": 30.0
         },
         "stretched": {
-          "edge_calibration": -0.00013152711726225174,
-          "p_value_unadjusted_exploratory": 0.23,
-          "p_value_adjusted": 0.6644444444444445,
-          "hit_rate": 0.4855072463768116,
-          "observations": 138.0
+          "edge_calibration": 6.356761980577003e-6,
+          "p_value_unadjusted_exploratory": 0.815,
+          "p_value_adjusted": 0.97,
+          "hit_rate": 0.512,
+          "observations": 125.0
         },
         "vol_mismatch": {
           "edge_calibration": null,
@@ -457,172 +277,54 @@
           "observations": 0.0
         },
         "trending_regime": {
-          "edge_calibration": -0.00005338419077745777,
-          "p_value_unadjusted_exploratory": 0.405,
-          "p_value_adjusted": 0.8088888888888889,
-          "hit_rate": 0.4957983193277311,
-          "observations": 476.0
+          "edge_calibration": -0.00001989904923603456,
+          "p_value_unadjusted_exploratory": 0.31,
+          "p_value_adjusted": 0.8647368421052631,
+          "hit_rate": 0.46864686468646866,
+          "observations": 303.0
         },
         "mean_reverting_regime": {
-          "edge_calibration": -0.00006830045372719212,
-          "p_value_unadjusted_exploratory": 0.84,
-          "p_value_adjusted": 0.8914285714285715,
-          "hit_rate": 0.5789473684210527,
-          "observations": 19.0
+          "edge_calibration": 0.00006135390189616941,
+          "p_value_unadjusted_exploratory": 0.105,
+          "p_value_adjusted": 0.5520833333333334,
+          "hit_rate": 0.52,
+          "observations": 100.0
         }
       }
     },
     {
-      "symbol": "R_10",
-      "epoch": 1793314080,
+      "symbol": "1HZ50V",
+      "epoch": 1793339640,
       "calibration_candles": 1200,
       "evaluation_candles": 200,
       "display_candles": 600,
-      "price": 4921.888,
-      "rsi": 37.42166014971175,
-      "bollinger_z": -1.424018611400577,
-      "ema20": 4923.412143432373,
-      "ema50": 4924.075636821997,
+      "price": 207034.13,
+      "rsi": 45.51904591942592,
+      "bollinger_z": -0.07844325620348985,
+      "ema20": 207123.64825163374,
+      "ema50": 207214.8819532256,
       "ema20_50_trend": "ema20_below_ema50",
-      "realised_vol": 0.10254057851849907,
-      "stated_vol": 0.1,
-      "vol_ratio": 1.0254057851849907,
-      "rolling_autocorrelation": -0.03430182608748468,
-      "hurst": 0.505148259159559,
-      "variance_ratio": 0.9968047897287148,
+      "realised_vol": 0.6071395034224393,
+      "stated_vol": 0.5,
+      "vol_ratio": 1.2142790068448786,
+      "rolling_autocorrelation": 0.03638139317899626,
+      "hurst": 0.8143570013809438,
+      "variance_ratio": 0.9979841230711475,
       "flags": [],
       "reliability": {
         "overbought": {
-          "edge_calibration": 0.000015167494451560911,
-          "p_value_unadjusted_exploratory": 0.52,
-          "p_value_adjusted": 0.872258064516129,
-          "hit_rate": 0.5294117647058824,
-          "observations": 34.0
+          "edge_calibration": -0.00029304757945364344,
+          "p_value_unadjusted_exploratory": 0.02,
+          "p_value_adjusted": 0.5299999999999999,
+          "hit_rate": 0.3103448275862069,
+          "observations": 29.0
         },
         "stretched": {
-          "edge_calibration": -0.000014582720182516388,
-          "p_value_unadjusted_exploratory": 0.215,
-          "p_value_adjusted": 0.6576470588235294,
-          "hit_rate": 0.5,
-          "observations": 140.0
-        },
-        "vol_mismatch": {
-          "edge_calibration": null,
-          "p_value_unadjusted_exploratory": null,
-          "p_value_adjusted": null,
-          "hit_rate": null,
-          "observations": 3.0
-        },
-        "trending_regime": {
-          "edge_calibration": -3.6255721347556e-6,
-          "p_value_unadjusted_exploratory": 0.49,
-          "p_value_adjusted": 0.872258064516129,
-          "hit_rate": 0.5231388329979879,
-          "observations": 497.0
-        },
-        "mean_reverting_regime": {
-          "edge_calibration": 3.939140366025431e-6,
-          "p_value_unadjusted_exploratory": 0.84,
-          "p_value_adjusted": 0.8914285714285715,
-          "hit_rate": 0.5254237288135594,
-          "observations": 59.0
-        }
-      }
-    },
-    {
-      "symbol": "R_100",
-      "epoch": 1793314080,
-      "calibration_candles": 1200,
-      "evaluation_candles": 200,
-      "display_candles": 600,
-      "price": 576.35,
-      "rsi": 67.62282148576432,
-      "bollinger_z": 2.1469313058319317,
-      "ema20": 573.9933496628929,
-      "ema50": 572.5812817831586,
-      "ema20_50_trend": "ema20_above_ema50",
-      "realised_vol": 1.014450253737856,
-      "stated_vol": 1.0,
-      "vol_ratio": 1.014450253737856,
-      "rolling_autocorrelation": -0.15620503810899633,
-      "hurst": 0.4500053859671381,
-      "variance_ratio": 0.8006060907346539,
-      "flags": [
-        "stretched"
-      ],
-      "reliability": {
-        "overbought": {
-          "edge_calibration": -0.00037179416256502936,
-          "p_value_unadjusted_exploratory": 0.065,
-          "p_value_adjusted": 0.6,
-          "hit_rate": 0.34285714285714286,
-          "observations": 35.0
-        },
-        "stretched": {
-          "edge_calibration": -0.00019048024120860293,
-          "p_value_unadjusted_exploratory": 0.06,
-          "p_value_adjusted": 0.6,
-          "hit_rate": 0.4772727272727273,
-          "observations": 132.0
-        },
-        "vol_mismatch": {
-          "edge_calibration": null,
-          "p_value_unadjusted_exploratory": null,
-          "p_value_adjusted": null,
-          "hit_rate": null,
-          "observations": 3.0
-        },
-        "trending_regime": {
-          "edge_calibration": 0.00008660366863074089,
-          "p_value_unadjusted_exploratory": 0.095,
-          "p_value_adjusted": 0.6,
-          "hit_rate": 0.5286624203821656,
-          "observations": 314.0
-        },
-        "mean_reverting_regime": {
-          "edge_calibration": -0.00006205233129942268,
-          "p_value_unadjusted_exploratory": 0.675,
-          "p_value_adjusted": 0.8817391304347827,
-          "hit_rate": 0.4861111111111111,
-          "observations": 72.0
-        }
-      }
-    },
-    {
-      "symbol": "R_25",
-      "epoch": 1793314080,
-      "calibration_candles": 1200,
-      "evaluation_candles": 200,
-      "display_candles": 600,
-      "price": 2937.928,
-      "rsi": 47.20612541371947,
-      "bollinger_z": -0.05746604596816046,
-      "ema20": 2938.043131251916,
-      "ema50": 2939.467288632608,
-      "ema20_50_trend": "ema20_below_ema50",
-      "realised_vol": 0.24378954472195496,
-      "stated_vol": 0.25,
-      "vol_ratio": 0.9751581788878199,
-      "rolling_autocorrelation": -0.042304940910144695,
-      "hurst": 0.7680090568817826,
-      "variance_ratio": 1.039697014545752,
-      "flags": [
-        "trending_regime"
-      ],
-      "reliability": {
-        "overbought": {
-          "edge_calibration": 9.59577525106018e-6,
-          "p_value_unadjusted_exploratory": 0.82,
-          "p_value_adjusted": 0.8914285714285715,
-          "hit_rate": 0.4752475247524752,
-          "observations": 101.0
-        },
-        "stretched": {
-          "edge_calibration": 0.000052281116724761126,
-          "p_value_unadjusted_exploratory": 0.17,
-          "p_value_adjusted": 0.6066666666666667,
-          "hit_rate": 0.5740740740740741,
-          "observations": 162.0
+          "edge_calibration": -0.00010519771757784009,
+          "p_value_unadjusted_exploratory": 0.055,
+          "p_value_adjusted": 0.5520833333333334,
+          "hit_rate": 0.4794520547945205,
+          "observations": 146.0
         },
         "vol_mismatch": {
           "edge_calibration": null,
@@ -632,115 +334,56 @@
           "observations": 1.0
         },
         "trending_regime": {
-          "edge_calibration": 0.00001951678175052479,
-          "p_value_unadjusted_exploratory": 0.78,
-          "p_value_adjusted": 0.8817391304347827,
-          "hit_rate": 0.5152941176470588,
-          "observations": 425.0
+          "edge_calibration": 9.641534591382458e-6,
+          "p_value_unadjusted_exploratory": 0.67,
+          "p_value_adjusted": 0.97,
+          "hit_rate": 0.49195402298850577,
+          "observations": 435.0
         },
         "mean_reverting_regime": {
-          "edge_calibration": 0.00002306616809895223,
-          "p_value_unadjusted_exploratory": 0.58,
-          "p_value_adjusted": 0.8811111111111111,
-          "hit_rate": 0.5753424657534246,
-          "observations": 73.0
+          "edge_calibration": -0.000019405915937580716,
+          "p_value_unadjusted_exploratory": 0.89,
+          "p_value_adjusted": 0.97,
+          "hit_rate": 0.45714285714285713,
+          "observations": 35.0
         }
       }
     },
     {
-      "symbol": "R_50",
-      "epoch": 1793314080,
+      "symbol": "1HZ75V",
+      "epoch": 1793339640,
       "calibration_candles": 1200,
       "evaluation_candles": 200,
       "display_candles": 600,
-      "price": 87.8607,
-      "rsi": 49.99660085258791,
-      "bollinger_z": -0.005634069384557793,
-      "ema20": 87.87872174320552,
-      "ema50": 87.82878569135742,
-      "ema20_50_trend": "ema20_above_ema50",
-      "realised_vol": 0.43522635177414654,
-      "stated_vol": 0.5,
-      "vol_ratio": 0.8704527035482931,
-      "rolling_autocorrelation": -0.037207469056141695,
-      "hurst": 0.6751110450265565,
-      "variance_ratio": 1.001904755524236,
-      "flags": [
-        "trending_regime"
-      ],
-      "reliability": {
-        "overbought": {
-          "edge_calibration": 0.00003522124732148593,
-          "p_value_unadjusted_exploratory": 0.685,
-          "p_value_adjusted": 0.8817391304347827,
-          "hit_rate": 0.5441176470588235,
-          "observations": 68.0
-        },
-        "stretched": {
-          "edge_calibration": 0.00002389847082330994,
-          "p_value_unadjusted_exploratory": 0.7,
-          "p_value_adjusted": 0.8817391304347827,
-          "hit_rate": 0.4722222222222222,
-          "observations": 144.0
-        },
-        "vol_mismatch": {
-          "edge_calibration": null,
-          "p_value_unadjusted_exploratory": null,
-          "p_value_adjusted": null,
-          "hit_rate": null,
-          "observations": 2.0
-        },
-        "trending_regime": {
-          "edge_calibration": 0.000016636125543971094,
-          "p_value_unadjusted_exploratory": 0.42,
-          "p_value_adjusted": 0.8088888888888889,
-          "hit_rate": 0.5187601957585645,
-          "observations": 613.0
-        },
-        "mean_reverting_regime": {
-          "edge_calibration": null,
-          "p_value_unadjusted_exploratory": null,
-          "p_value_adjusted": null,
-          "hit_rate": null,
-          "observations": 2.0
-        }
-      }
-    },
-    {
-      "symbol": "R_75",
-      "epoch": 1793314080,
-      "calibration_candles": 1200,
-      "evaluation_candles": 200,
-      "display_candles": 600,
-      "price": 38283.5799,
-      "rsi": 41.57355901537606,
-      "bollinger_z": -1.0973598077647235,
-      "ema20": 38345.804406759475,
-      "ema50": 38378.43294304715,
+      "price": 4944.83,
+      "rsi": 45.45900570819313,
+      "bollinger_z": -0.5201376399518328,
+      "ema20": 4947.352956889973,
+      "ema50": 4957.418246594748,
       "ema20_50_trend": "ema20_below_ema50",
-      "realised_vol": 0.7878687195547331,
+      "realised_vol": 0.7839322010515738,
       "stated_vol": 0.75,
-      "vol_ratio": 1.0504916260729775,
-      "rolling_autocorrelation": 0.16868810461069333,
-      "hurst": 0.6566903164868989,
-      "variance_ratio": 1.1323542910509463,
+      "vol_ratio": 1.0452429347354317,
+      "rolling_autocorrelation": 0.09308071846820742,
+      "hurst": 0.7815412436915352,
+      "variance_ratio": 1.056160910726472,
       "flags": [
         "trending_regime"
       ],
       "reliability": {
         "overbought": {
-          "edge_calibration": -0.0003660147053180528,
-          "p_value_unadjusted_exploratory": 0.035,
-          "p_value_adjusted": 0.6,
-          "hit_rate": 0.3611111111111111,
-          "observations": 36.0
+          "edge_calibration": -0.00009039586273415085,
+          "p_value_unadjusted_exploratory": 0.53,
+          "p_value_adjusted": 0.97,
+          "hit_rate": 0.4098360655737705,
+          "observations": 61.0
         },
         "stretched": {
-          "edge_calibration": -0.00013510737061752363,
-          "p_value_unadjusted_exploratory": 0.15,
-          "p_value_adjusted": 0.6,
-          "hit_rate": 0.44881889763779526,
-          "observations": 127.0
+          "edge_calibration": 0.00011574141303395585,
+          "p_value_unadjusted_exploratory": 0.24,
+          "p_value_adjusted": 0.848,
+          "hit_rate": 0.5273972602739726,
+          "observations": 146.0
         },
         "vol_mismatch": {
           "edge_calibration": null,
@@ -750,18 +393,368 @@
           "observations": 0.0
         },
         "trending_regime": {
-          "edge_calibration": 0.000046852595697603954,
-          "p_value_unadjusted_exploratory": 0.33,
-          "p_value_adjusted": 0.768695652173913,
-          "hit_rate": 0.5140562248995983,
-          "observations": 498.0
+          "edge_calibration": 2.1910926942338845e-6,
+          "p_value_unadjusted_exploratory": 0.965,
+          "p_value_adjusted": 0.97,
+          "hit_rate": 0.4714285714285714,
+          "observations": 630.0
         },
         "mean_reverting_regime": {
-          "edge_calibration": -0.00021562179220002424,
-          "p_value_unadjusted_exploratory": 0.085,
-          "p_value_adjusted": 0.6,
-          "hit_rate": 0.3870967741935484,
-          "observations": 62.0
+          "edge_calibration": -0.000034071863104691314,
+          "p_value_unadjusted_exploratory": 0.87,
+          "p_value_adjusted": 0.97,
+          "hit_rate": 0.4523809523809524,
+          "observations": 42.0
+        }
+      }
+    },
+    {
+      "symbol": "1HZ90V",
+      "epoch": 1793339640,
+      "calibration_candles": 1200,
+      "evaluation_candles": 200,
+      "display_candles": 600,
+      "price": 28638.324,
+      "rsi": 38.75396014100997,
+      "bollinger_z": -1.0487365325983562,
+      "ema20": 28705.776159341294,
+      "ema50": 28735.218156061208,
+      "ema20_50_trend": "ema20_below_ema50",
+      "realised_vol": 1.0304534563174685,
+      "stated_vol": 0.9,
+      "vol_ratio": 1.1449482847971872,
+      "rolling_autocorrelation": -0.17510685391603686,
+      "hurst": 0.6170333458824975,
+      "variance_ratio": 0.8785405806559499,
+      "flags": [],
+      "reliability": {
+        "overbought": {
+          "edge_calibration": 0.00004854337522055269,
+          "p_value_unadjusted_exploratory": 0.815,
+          "p_value_adjusted": 0.97,
+          "hit_rate": 0.5283018867924528,
+          "observations": 53.0
+        },
+        "stretched": {
+          "edge_calibration": -0.00022676824452456197,
+          "p_value_unadjusted_exploratory": 0.055,
+          "p_value_adjusted": 0.5520833333333334,
+          "hit_rate": 0.4460431654676259,
+          "observations": 139.0
+        },
+        "vol_mismatch": {
+          "edge_calibration": null,
+          "p_value_unadjusted_exploratory": null,
+          "p_value_adjusted": null,
+          "hit_rate": null,
+          "observations": 1.0
+        },
+        "trending_regime": {
+          "edge_calibration": -0.00005094873399265564,
+          "p_value_unadjusted_exploratory": 0.445,
+          "p_value_adjusted": 0.9173076923076924,
+          "hit_rate": 0.48314606741573035,
+          "observations": 534.0
+        },
+        "mean_reverting_regime": {
+          "edge_calibration": -0.00007912118106026821,
+          "p_value_unadjusted_exploratory": 0.765,
+          "p_value_adjusted": 0.97,
+          "hit_rate": 0.5,
+          "observations": 26.0
+        }
+      }
+    },
+    {
+      "symbol": "R_10",
+      "epoch": 1793339640,
+      "calibration_candles": 1200,
+      "evaluation_candles": 200,
+      "display_candles": 600,
+      "price": 4904.549,
+      "rsi": 51.44144804444422,
+      "bollinger_z": 0.5588765957161499,
+      "ema20": 4903.999458482088,
+      "ema50": 4905.529676498271,
+      "ema20_50_trend": "ema20_below_ema50",
+      "realised_vol": 0.10146076956487271,
+      "stated_vol": 0.1,
+      "vol_ratio": 1.014607695648727,
+      "rolling_autocorrelation": 0.20925303342911833,
+      "hurst": 0.607989321737719,
+      "variance_ratio": 1.1297627911380013,
+      "flags": [
+        "trending_regime"
+      ],
+      "reliability": {
+        "overbought": {
+          "edge_calibration": 6.45775347301496e-6,
+          "p_value_unadjusted_exploratory": 0.725,
+          "p_value_adjusted": 0.97,
+          "hit_rate": 0.53125,
+          "observations": 64.0
+        },
+        "stretched": {
+          "edge_calibration": -0.000014383541510762555,
+          "p_value_unadjusted_exploratory": 0.18,
+          "p_value_adjusted": 0.7003571428571428,
+          "hit_rate": 0.4966442953020134,
+          "observations": 149.0
+        },
+        "vol_mismatch": {
+          "edge_calibration": null,
+          "p_value_unadjusted_exploratory": null,
+          "p_value_adjusted": null,
+          "hit_rate": null,
+          "observations": 3.0
+        },
+        "trending_regime": {
+          "edge_calibration": -7.99433295302238e-7,
+          "p_value_unadjusted_exploratory": 0.87,
+          "p_value_adjusted": 0.97,
+          "hit_rate": 0.5290102389078498,
+          "observations": 586.0
+        },
+        "mean_reverting_regime": {
+          "edge_calibration": 9.912451414408923e-6,
+          "p_value_unadjusted_exploratory": 0.595,
+          "p_value_adjusted": 0.97,
+          "hit_rate": 0.5277777777777778,
+          "observations": 36.0
+        }
+      }
+    },
+    {
+      "symbol": "R_100",
+      "epoch": 1793339640,
+      "calibration_candles": 1200,
+      "evaluation_candles": 200,
+      "display_candles": 600,
+      "price": 550.73,
+      "rsi": 47.86316981021412,
+      "bollinger_z": -0.38817524093476213,
+      "ema20": 550.9024674322295,
+      "ema50": 551.2629554605836,
+      "ema20_50_trend": "ema20_below_ema50",
+      "realised_vol": 0.9134826582014564,
+      "stated_vol": 1.0,
+      "vol_ratio": 0.9134826582014564,
+      "rolling_autocorrelation": -0.12433590415359487,
+      "hurst": 0.6986431207032687,
+      "variance_ratio": 0.8203226839312378,
+      "flags": [],
+      "reliability": {
+        "overbought": {
+          "edge_calibration": -0.0001985700752028512,
+          "p_value_unadjusted_exploratory": 0.185,
+          "p_value_adjusted": 0.7003571428571428,
+          "hit_rate": 0.4507042253521127,
+          "observations": 71.0
+        },
+        "stretched": {
+          "edge_calibration": -0.0000895439726702696,
+          "p_value_unadjusted_exploratory": 0.43,
+          "p_value_adjusted": 0.9173076923076924,
+          "hit_rate": 0.5036496350364964,
+          "observations": 137.0
+        },
+        "vol_mismatch": {
+          "edge_calibration": null,
+          "p_value_unadjusted_exploratory": null,
+          "p_value_adjusted": null,
+          "hit_rate": null,
+          "observations": 0.0
+        },
+        "trending_regime": {
+          "edge_calibration": 4.3734593489760454e-6,
+          "p_value_unadjusted_exploratory": 0.955,
+          "p_value_adjusted": 0.97,
+          "hit_rate": 0.508,
+          "observations": 500.0
+        },
+        "mean_reverting_regime": {
+          "edge_calibration": -0.000015767795801651813,
+          "p_value_unadjusted_exploratory": 0.93,
+          "p_value_adjusted": 0.97,
+          "hit_rate": 0.5151515151515151,
+          "observations": 66.0
+        }
+      }
+    },
+    {
+      "symbol": "R_25",
+      "epoch": 1793339640,
+      "calibration_candles": 1200,
+      "evaluation_candles": 200,
+      "display_candles": 600,
+      "price": 2944.621,
+      "rsi": 51.77913321753817,
+      "bollinger_z": 1.017582816962757,
+      "ema20": 2943.861988345417,
+      "ema50": 2945.5767369537334,
+      "ema20_50_trend": "ema20_below_ema50",
+      "realised_vol": 0.2563322227723883,
+      "stated_vol": 0.25,
+      "vol_ratio": 1.0253288910895533,
+      "rolling_autocorrelation": 0.12926794254781754,
+      "hurst": 0.5917520229501855,
+      "variance_ratio": 1.0960892372412416,
+      "flags": [
+        "trending_regime"
+      ],
+      "reliability": {
+        "overbought": {
+          "edge_calibration": 0.000014523070901246096,
+          "p_value_unadjusted_exploratory": 0.68,
+          "p_value_adjusted": 0.97,
+          "hit_rate": 0.4888888888888889,
+          "observations": 90.0
+        },
+        "stretched": {
+          "edge_calibration": 0.00003103601585731861,
+          "p_value_unadjusted_exploratory": 0.265,
+          "p_value_adjusted": 0.8538888888888888,
+          "hit_rate": 0.5555555555555556,
+          "observations": 144.0
+        },
+        "vol_mismatch": {
+          "edge_calibration": null,
+          "p_value_unadjusted_exploratory": null,
+          "p_value_adjusted": null,
+          "hit_rate": null,
+          "observations": 1.0
+        },
+        "trending_regime": {
+          "edge_calibration": 0.00001732429729222899,
+          "p_value_unadjusted_exploratory": 0.405,
+          "p_value_adjusted": 0.9173076923076924,
+          "hit_rate": 0.5178571428571429,
+          "observations": 448.0
+        },
+        "mean_reverting_regime": {
+          "edge_calibration": -0.0000316672004930288,
+          "p_value_unadjusted_exploratory": 0.45,
+          "p_value_adjusted": 0.9173076923076924,
+          "hit_rate": 0.5324675324675324,
+          "observations": 77.0
+        }
+      }
+    },
+    {
+      "symbol": "R_50",
+      "epoch": 1793339640,
+      "calibration_candles": 1200,
+      "evaluation_candles": 200,
+      "display_candles": 600,
+      "price": 87.7009,
+      "rsi": 37.34165612564861,
+      "bollinger_z": -1.144057599275036,
+      "ema20": 87.83014720560647,
+      "ema50": 87.86088618563794,
+      "ema20_50_trend": "ema20_below_ema50",
+      "realised_vol": 0.543467004072104,
+      "stated_vol": 0.5,
+      "vol_ratio": 1.086934008144208,
+      "rolling_autocorrelation": 0.19349366083976446,
+      "hurst": 0.7134059989515311,
+      "variance_ratio": 1.0808257922137399,
+      "flags": [
+        "trending_regime"
+      ],
+      "reliability": {
+        "overbought": {
+          "edge_calibration": 0.00004483541318908633,
+          "p_value_unadjusted_exploratory": 0.65,
+          "p_value_adjusted": 0.97,
+          "hit_rate": 0.5507246376811594,
+          "observations": 69.0
+        },
+        "stretched": {
+          "edge_calibration": 0.00011478328137059145,
+          "p_value_unadjusted_exploratory": 0.08,
+          "p_value_adjusted": 0.5520833333333334,
+          "hit_rate": 0.5486111111111112,
+          "observations": 144.0
+        },
+        "vol_mismatch": {
+          "edge_calibration": null,
+          "p_value_unadjusted_exploratory": null,
+          "p_value_adjusted": null,
+          "hit_rate": null,
+          "observations": 0.0
+        },
+        "trending_regime": {
+          "edge_calibration": 0.000032855821401150307,
+          "p_value_unadjusted_exploratory": 0.36,
+          "p_value_adjusted": 0.8672727272727272,
+          "hit_rate": 0.5288808664259927,
+          "observations": 554.0
+        },
+        "mean_reverting_regime": {
+          "edge_calibration": 0.00009788603541681178,
+          "p_value_unadjusted_exploratory": 0.715,
+          "p_value_adjusted": 0.97,
+          "hit_rate": 0.5,
+          "observations": 6.0
+        }
+      }
+    },
+    {
+      "symbol": "R_75",
+      "epoch": 1793339640,
+      "calibration_candles": 1200,
+      "evaluation_candles": 200,
+      "display_candles": 600,
+      "price": 38916.0612,
+      "rsi": 48.72157941241974,
+      "bollinger_z": -0.7261832057408303,
+      "ema20": 38931.17099021374,
+      "ema50": 38896.66608197365,
+      "ema20_50_trend": "ema20_above_ema50",
+      "realised_vol": 0.5590180782653631,
+      "stated_vol": 0.75,
+      "vol_ratio": 0.7453574376871508,
+      "rolling_autocorrelation": 0.0059114612571943195,
+      "hurst": 0.8484679987325876,
+      "variance_ratio": 1.0660093924794065,
+      "flags": [
+        "trending_regime"
+      ],
+      "reliability": {
+        "overbought": {
+          "edge_calibration": -0.00013468490692319118,
+          "p_value_unadjusted_exploratory": 0.345,
+          "p_value_adjusted": 0.8672727272727272,
+          "hit_rate": 0.44285714285714284,
+          "observations": 70.0
+        },
+        "stretched": {
+          "edge_calibration": -0.00010914324468768737,
+          "p_value_unadjusted_exploratory": 0.345,
+          "p_value_adjusted": 0.8672727272727272,
+          "hit_rate": 0.45454545454545453,
+          "observations": 132.0
+        },
+        "vol_mismatch": {
+          "edge_calibration": null,
+          "p_value_unadjusted_exploratory": null,
+          "p_value_adjusted": null,
+          "hit_rate": null,
+          "observations": 1.0
+        },
+        "trending_regime": {
+          "edge_calibration": 0.00011547201720819146,
+          "p_value_unadjusted_exploratory": 0.115,
+          "p_value_adjusted": 0.5520833333333334,
+          "hit_rate": 0.5505882352941176,
+          "observations": 425.0
+        },
+        "mean_reverting_regime": {
+          "edge_calibration": -0.00020122795925149337,
+          "p_value_unadjusted_exploratory": 0.125,
+          "p_value_adjusted": 0.5520833333333334,
+          "hit_rate": 0.3835616438356164,
+          "observations": 73.0
         }
       }
     }
@@ -772,13 +765,13 @@
     "invalid_prices": [],
     "abnormal_jumps": [
       {
-        "symbol": "R_25",
+        "symbol": "1HZ30V",
         "record_kind": "candle",
         "granularity": 60,
-        "epoch": 1793141520,
-        "log_return": 0.0003743495187136581,
-        "local_sigma": 0.000044314031329448275,
-        "sigma_multiple": 8.447652075041281,
+        "epoch": 1793167140,
+        "log_return": 0.0009739180582308613,
+        "local_sigma": 0.00003353747654329266,
+        "sigma_multiple": 29.039694056100362,
         "flag": "sigma-threshold"
       }
     ],
@@ -787,18 +780,9 @@
         "symbol": "1HZ100V",
         "record_kind": "candle",
         "granularity": 60,
-        "day": "2026-10-27",
-        "expected_records": 71,
-        "observed_records": 71,
-        "coverage_pct": 100.0
-      },
-      {
-        "symbol": "1HZ100V",
-        "record_kind": "candle",
-        "granularity": 60,
         "day": "2026-10-28",
-        "expected_records": 1440,
-        "observed_records": 1440,
+        "expected_records": 1085,
+        "observed_records": 1085,
         "coverage_pct": 100.0
       },
       {
@@ -806,26 +790,26 @@
         "record_kind": "candle",
         "granularity": 60,
         "day": "2026-10-29",
-        "expected_records": 1369,
-        "observed_records": 1369,
+        "expected_records": 1440,
+        "observed_records": 1440,
+        "coverage_pct": 100.0
+      },
+      {
+        "symbol": "1HZ100V",
+        "record_kind": "candle",
+        "granularity": 60,
+        "day": "2026-10-30",
+        "expected_records": 355,
+        "observed_records": 355,
         "coverage_pct": 100.0
       },
       {
         "symbol": "1HZ10V",
         "record_kind": "candle",
         "granularity": 60,
-        "day": "2026-10-27",
-        "expected_records": 71,
-        "observed_records": 71,
-        "coverage_pct": 100.0
-      },
-      {
-        "symbol": "1HZ10V",
-        "record_kind": "candle",
-        "granularity": 60,
         "day": "2026-10-28",
-        "expected_records": 1440,
-        "observed_records": 1440,
+        "expected_records": 1085,
+        "observed_records": 1085,
         "coverage_pct": 100.0
       },
       {
@@ -833,26 +817,26 @@
         "record_kind": "candle",
         "granularity": 60,
         "day": "2026-10-29",
-        "expected_records": 1369,
-        "observed_records": 1369,
+        "expected_records": 1440,
+        "observed_records": 1440,
+        "coverage_pct": 100.0
+      },
+      {
+        "symbol": "1HZ10V",
+        "record_kind": "candle",
+        "granularity": 60,
+        "day": "2026-10-30",
+        "expected_records": 355,
+        "observed_records": 355,
         "coverage_pct": 100.0
       },
       {
         "symbol": "1HZ15V",
         "record_kind": "candle",
         "granularity": 60,
-        "day": "2026-10-27",
-        "expected_records": 71,
-        "observed_records": 71,
-        "coverage_pct": 100.0
-      },
-      {
-        "symbol": "1HZ15V",
-        "record_kind": "candle",
-        "granularity": 60,
         "day": "2026-10-28",
-        "expected_records": 1440,
-        "observed_records": 1440,
+        "expected_records": 1085,
+        "observed_records": 1085,
         "coverage_pct": 100.0
       },
       {
@@ -860,26 +844,26 @@
         "record_kind": "candle",
         "granularity": 60,
         "day": "2026-10-29",
-        "expected_records": 1369,
-        "observed_records": 1369,
+        "expected_records": 1440,
+        "observed_records": 1440,
+        "coverage_pct": 100.0
+      },
+      {
+        "symbol": "1HZ15V",
+        "record_kind": "candle",
+        "granularity": 60,
+        "day": "2026-10-30",
+        "expected_records": 355,
+        "observed_records": 355,
         "coverage_pct": 100.0
       },
       {
         "symbol": "1HZ25V",
         "record_kind": "candle",
         "granularity": 60,
-        "day": "2026-10-27",
-        "expected_records": 71,
-        "observed_records": 71,
-        "coverage_pct": 100.0
-      },
-      {
-        "symbol": "1HZ25V",
-        "record_kind": "candle",
-        "granularity": 60,
         "day": "2026-10-28",
-        "expected_records": 1440,
-        "observed_records": 1440,
+        "expected_records": 1085,
+        "observed_records": 1085,
         "coverage_pct": 100.0
       },
       {
@@ -887,26 +871,26 @@
         "record_kind": "candle",
         "granularity": 60,
         "day": "2026-10-29",
-        "expected_records": 1369,
-        "observed_records": 1369,
+        "expected_records": 1440,
+        "observed_records": 1440,
+        "coverage_pct": 100.0
+      },
+      {
+        "symbol": "1HZ25V",
+        "record_kind": "candle",
+        "granularity": 60,
+        "day": "2026-10-30",
+        "expected_records": 355,
+        "observed_records": 355,
         "coverage_pct": 100.0
       },
       {
         "symbol": "1HZ30V",
         "record_kind": "candle",
         "granularity": 60,
-        "day": "2026-10-27",
-        "expected_records": 71,
-        "observed_records": 71,
-        "coverage_pct": 100.0
-      },
-      {
-        "symbol": "1HZ30V",
-        "record_kind": "candle",
-        "granularity": 60,
         "day": "2026-10-28",
-        "expected_records": 1440,
-        "observed_records": 1440,
+        "expected_records": 1085,
+        "observed_records": 1085,
         "coverage_pct": 100.0
       },
       {
@@ -914,26 +898,26 @@
         "record_kind": "candle",
         "granularity": 60,
         "day": "2026-10-29",
-        "expected_records": 1369,
-        "observed_records": 1369,
+        "expected_records": 1440,
+        "observed_records": 1440,
+        "coverage_pct": 100.0
+      },
+      {
+        "symbol": "1HZ30V",
+        "record_kind": "candle",
+        "granularity": 60,
+        "day": "2026-10-30",
+        "expected_records": 355,
+        "observed_records": 355,
         "coverage_pct": 100.0
       },
       {
         "symbol": "1HZ50V",
         "record_kind": "candle",
         "granularity": 60,
-        "day": "2026-10-27",
-        "expected_records": 71,
-        "observed_records": 71,
-        "coverage_pct": 100.0
-      },
-      {
-        "symbol": "1HZ50V",
-        "record_kind": "candle",
-        "granularity": 60,
         "day": "2026-10-28",
-        "expected_records": 1440,
-        "observed_records": 1440,
+        "expected_records": 1085,
+        "observed_records": 1085,
         "coverage_pct": 100.0
       },
       {
@@ -941,26 +925,26 @@
         "record_kind": "candle",
         "granularity": 60,
         "day": "2026-10-29",
-        "expected_records": 1369,
-        "observed_records": 1369,
+        "expected_records": 1440,
+        "observed_records": 1440,
+        "coverage_pct": 100.0
+      },
+      {
+        "symbol": "1HZ50V",
+        "record_kind": "candle",
+        "granularity": 60,
+        "day": "2026-10-30",
+        "expected_records": 355,
+        "observed_records": 355,
         "coverage_pct": 100.0
       },
       {
         "symbol": "1HZ75V",
         "record_kind": "candle",
         "granularity": 60,
-        "day": "2026-10-27",
-        "expected_records": 71,
-        "observed_records": 71,
-        "coverage_pct": 100.0
-      },
-      {
-        "symbol": "1HZ75V",
-        "record_kind": "candle",
-        "granularity": 60,
         "day": "2026-10-28",
-        "expected_records": 1440,
-        "observed_records": 1440,
+        "expected_records": 1085,
+        "observed_records": 1085,
         "coverage_pct": 100.0
       },
       {
@@ -968,26 +952,26 @@
         "record_kind": "candle",
         "granularity": 60,
         "day": "2026-10-29",
-        "expected_records": 1369,
-        "observed_records": 1369,
+        "expected_records": 1440,
+        "observed_records": 1440,
+        "coverage_pct": 100.0
+      },
+      {
+        "symbol": "1HZ75V",
+        "record_kind": "candle",
+        "granularity": 60,
+        "day": "2026-10-30",
+        "expected_records": 355,
+        "observed_records": 355,
         "coverage_pct": 100.0
       },
       {
         "symbol": "1HZ90V",
         "record_kind": "candle",
         "granularity": 60,
-        "day": "2026-10-27",
-        "expected_records": 71,
-        "observed_records": 71,
-        "coverage_pct": 100.0
-      },
-      {
-        "symbol": "1HZ90V",
-        "record_kind": "candle",
-        "granularity": 60,
         "day": "2026-10-28",
-        "expected_records": 1440,
-        "observed_records": 1440,
+        "expected_records": 1085,
+        "observed_records": 1085,
         "coverage_pct": 100.0
       },
       {
@@ -995,26 +979,26 @@
         "record_kind": "candle",
         "granularity": 60,
         "day": "2026-10-29",
-        "expected_records": 1369,
-        "observed_records": 1369,
+        "expected_records": 1440,
+        "observed_records": 1440,
+        "coverage_pct": 100.0
+      },
+      {
+        "symbol": "1HZ90V",
+        "record_kind": "candle",
+        "granularity": 60,
+        "day": "2026-10-30",
+        "expected_records": 355,
+        "observed_records": 355,
         "coverage_pct": 100.0
       },
       {
         "symbol": "R_10",
         "record_kind": "candle",
         "granularity": 60,
-        "day": "2026-10-27",
-        "expected_records": 71,
-        "observed_records": 71,
-        "coverage_pct": 100.0
-      },
-      {
-        "symbol": "R_10",
-        "record_kind": "candle",
-        "granularity": 60,
         "day": "2026-10-28",
-        "expected_records": 1440,
-        "observed_records": 1440,
+        "expected_records": 1085,
+        "observed_records": 1085,
         "coverage_pct": 100.0
       },
       {
@@ -1022,26 +1006,26 @@
         "record_kind": "candle",
         "granularity": 60,
         "day": "2026-10-29",
-        "expected_records": 1369,
-        "observed_records": 1369,
+        "expected_records": 1440,
+        "observed_records": 1440,
+        "coverage_pct": 100.0
+      },
+      {
+        "symbol": "R_10",
+        "record_kind": "candle",
+        "granularity": 60,
+        "day": "2026-10-30",
+        "expected_records": 355,
+        "observed_records": 355,
         "coverage_pct": 100.0
       },
       {
         "symbol": "R_100",
         "record_kind": "candle",
         "granularity": 60,
-        "day": "2026-10-27",
-        "expected_records": 71,
-        "observed_records": 71,
-        "coverage_pct": 100.0
-      },
-      {
-        "symbol": "R_100",
-        "record_kind": "candle",
-        "granularity": 60,
         "day": "2026-10-28",
-        "expected_records": 1440,
-        "observed_records": 1440,
+        "expected_records": 1085,
+        "observed_records": 1085,
         "coverage_pct": 100.0
       },
       {
@@ -1049,17 +1033,17 @@
         "record_kind": "candle",
         "granularity": 60,
         "day": "2026-10-29",
-        "expected_records": 1369,
-        "observed_records": 1369,
+        "expected_records": 1440,
+        "observed_records": 1440,
         "coverage_pct": 100.0
       },
       {
-        "symbol": "R_25",
+        "symbol": "R_100",
         "record_kind": "candle",
         "granularity": 60,
-        "day": "2026-10-27",
-        "expected_records": 71,
-        "observed_records": 71,
+        "day": "2026-10-30",
+        "expected_records": 355,
+        "observed_records": 355,
         "coverage_pct": 100.0
       },
       {
@@ -1067,6 +1051,15 @@
         "record_kind": "candle",
         "granularity": 60,
         "day": "2026-10-28",
+        "expected_records": 1085,
+        "observed_records": 1085,
+        "coverage_pct": 100.0
+      },
+      {
+        "symbol": "R_25",
+        "record_kind": "candle",
+        "granularity": 60,
+        "day": "2026-10-29",
         "expected_records": 1440,
         "observed_records": 1440,
         "coverage_pct": 100.0
@@ -1075,18 +1068,9 @@
         "symbol": "R_25",
         "record_kind": "candle",
         "granularity": 60,
-        "day": "2026-10-29",
-        "expected_records": 1369,
-        "observed_records": 1369,
-        "coverage_pct": 100.0
-      },
-      {
-        "symbol": "R_50",
-        "record_kind": "candle",
-        "granularity": 60,
-        "day": "2026-10-27",
-        "expected_records": 71,
-        "observed_records": 71,
+        "day": "2026-10-30",
+        "expected_records": 355,
+        "observed_records": 355,
         "coverage_pct": 100.0
       },
       {
@@ -1094,6 +1078,15 @@
         "record_kind": "candle",
         "granularity": 60,
         "day": "2026-10-28",
+        "expected_records": 1085,
+        "observed_records": 1085,
+        "coverage_pct": 100.0
+      },
+      {
+        "symbol": "R_50",
+        "record_kind": "candle",
+        "granularity": 60,
+        "day": "2026-10-29",
         "expected_records": 1440,
         "observed_records": 1440,
         "coverage_pct": 100.0
@@ -1102,18 +1095,9 @@
         "symbol": "R_50",
         "record_kind": "candle",
         "granularity": 60,
-        "day": "2026-10-29",
-        "expected_records": 1369,
-        "observed_records": 1369,
-        "coverage_pct": 100.0
-      },
-      {
-        "symbol": "R_75",
-        "record_kind": "candle",
-        "granularity": 60,
-        "day": "2026-10-27",
-        "expected_records": 71,
-        "observed_records": 71,
+        "day": "2026-10-30",
+        "expected_records": 355,
+        "observed_records": 355,
         "coverage_pct": 100.0
       },
       {
@@ -1121,6 +1105,15 @@
         "record_kind": "candle",
         "granularity": 60,
         "day": "2026-10-28",
+        "expected_records": 1085,
+        "observed_records": 1085,
+        "coverage_pct": 100.0
+      },
+      {
+        "symbol": "R_75",
+        "record_kind": "candle",
+        "granularity": 60,
+        "day": "2026-10-29",
         "expected_records": 1440,
         "observed_records": 1440,
         "coverage_pct": 100.0
@@ -1129,9 +1122,9 @@
         "symbol": "R_75",
         "record_kind": "candle",
         "granularity": 60,
-        "day": "2026-10-29",
-        "expected_records": 1369,
-        "observed_records": 1369,
+        "day": "2026-10-30",
+        "expected_records": 355,
+        "observed_records": 355,
         "coverage_pct": 100.0
       }
     ]
@@ -1145,17 +1138,17 @@
       "non_monotonic_timestamps": 0,
       "invalid_prices": 0,
       "abnormal_jumps": 0,
-      "last_epoch": 1793314080
+      "last_epoch": 1793339640
     },
     {
       "symbol": "R_25",
-      "status": "warning",
+      "status": "healthy",
       "coverage_pct": 100.0,
       "duplicate_epochs": 0,
       "non_monotonic_timestamps": 0,
       "invalid_prices": 0,
-      "abnormal_jumps": 1,
-      "last_epoch": 1793314080
+      "abnormal_jumps": 0,
+      "last_epoch": 1793339640
     },
     {
       "symbol": "R_50",
@@ -1165,7 +1158,7 @@
       "non_monotonic_timestamps": 0,
       "invalid_prices": 0,
       "abnormal_jumps": 0,
-      "last_epoch": 1793314080
+      "last_epoch": 1793339640
     },
     {
       "symbol": "R_75",
@@ -1175,7 +1168,7 @@
       "non_monotonic_timestamps": 0,
       "invalid_prices": 0,
       "abnormal_jumps": 0,
-      "last_epoch": 1793314080
+      "last_epoch": 1793339640
     },
     {
       "symbol": "R_100",
@@ -1185,7 +1178,7 @@
       "non_monotonic_timestamps": 0,
       "invalid_prices": 0,
       "abnormal_jumps": 0,
-      "last_epoch": 1793314080
+      "last_epoch": 1793339640
     },
     {
       "symbol": "1HZ10V",
@@ -1195,7 +1188,7 @@
       "non_monotonic_timestamps": 0,
       "invalid_prices": 0,
       "abnormal_jumps": 0,
-      "last_epoch": 1793314080
+      "last_epoch": 1793339640
     },
     {
       "symbol": "1HZ15V",
@@ -1205,7 +1198,7 @@
       "non_monotonic_timestamps": 0,
       "invalid_prices": 0,
       "abnormal_jumps": 0,
-      "last_epoch": 1793314080
+      "last_epoch": 1793339640
     },
     {
       "symbol": "1HZ25V",
@@ -1215,17 +1208,17 @@
       "non_monotonic_timestamps": 0,
       "invalid_prices": 0,
       "abnormal_jumps": 0,
-      "last_epoch": 1793314080
+      "last_epoch": 1793339640
     },
     {
       "symbol": "1HZ30V",
-      "status": "healthy",
+      "status": "warning",
       "coverage_pct": 100.0,
       "duplicate_epochs": 0,
       "non_monotonic_timestamps": 0,
       "invalid_prices": 0,
-      "abnormal_jumps": 0,
-      "last_epoch": 1793314080
+      "abnormal_jumps": 1,
+      "last_epoch": 1793339640
     },
     {
       "symbol": "1HZ50V",
@@ -1235,7 +1228,7 @@
       "non_monotonic_timestamps": 0,
       "invalid_prices": 0,
       "abnormal_jumps": 0,
-      "last_epoch": 1793314080
+      "last_epoch": 1793339640
     },
     {
       "symbol": "1HZ75V",
@@ -1245,7 +1238,7 @@
       "non_monotonic_timestamps": 0,
       "invalid_prices": 0,
       "abnormal_jumps": 0,
-      "last_epoch": 1793314080
+      "last_epoch": 1793339640
     },
     {
       "symbol": "1HZ90V",
@@ -1255,7 +1248,7 @@
       "non_monotonic_timestamps": 0,
       "invalid_prices": 0,
       "abnormal_jumps": 0,
-      "last_epoch": 1793314080
+      "last_epoch": 1793339640
     },
     {
       "symbol": "1HZ100V",
@@ -1265,7 +1258,7 @@
       "non_monotonic_timestamps": 0,
       "invalid_prices": 0,
       "abnormal_jumps": 0,
-      "last_epoch": 1793314080
+      "last_epoch": 1793339640
     }
   ],
   "volatility_monitor": {
@@ -1273,158 +1266,158 @@
     "windows": [
       {
         "symbol": "R_10",
-        "window_end": 1793314080,
+        "window_end": 1793339640,
         "observations": 500,
         "stated_volatility": 0.1,
         "status": "ok",
-        "realized_volatility": 0.09959390971641904,
+        "realized_volatility": 0.09823894045950296,
         "confidence_level": 0.99,
-        "lower_confidence_bound": 0.09205133995409155,
-        "upper_confidence_bound": 0.10837861340586748,
+        "lower_confidence_bound": 0.09079898691311877,
+        "upper_confidence_bound": 0.10690412877432444,
         "alert": false
       },
       {
         "symbol": "R_25",
-        "window_end": 1793314080,
+        "window_end": 1793339640,
         "observations": 500,
         "stated_volatility": 0.25,
         "status": "ok",
-        "realized_volatility": 0.23925298641942172,
+        "realized_volatility": 0.25254743476249825,
         "confidence_level": 0.99,
-        "lower_confidence_bound": 0.22113358186896281,
-        "upper_confidence_bound": 0.26035635105782945,
+        "lower_confidence_bound": 0.2334211985255955,
+        "upper_confidence_bound": 0.2748234392715682,
         "alert": false
       },
       {
         "symbol": "R_50",
-        "window_end": 1793314080,
+        "window_end": 1793339640,
         "observations": 500,
         "stated_volatility": 0.5,
         "status": "ok",
-        "realized_volatility": 0.504445373030116,
+        "realized_volatility": 0.49768904129160224,
         "confidence_level": 0.99,
-        "lower_confidence_bound": 0.46624208903216197,
-        "upper_confidence_bound": 0.5489400930606954,
+        "lower_confidence_bound": 0.459997436206749,
+        "upper_confidence_bound": 0.5415878175288366,
         "alert": false
       },
       {
         "symbol": "R_75",
-        "window_end": 1793314080,
+        "window_end": 1793339640,
         "observations": 500,
         "stated_volatility": 0.75,
         "status": "ok",
-        "realized_volatility": 0.7294978102765263,
+        "realized_volatility": 0.754937872212308,
         "confidence_level": 0.99,
-        "lower_confidence_bound": 0.6742505753688608,
-        "upper_confidence_bound": 0.7938433322429591,
+        "lower_confidence_bound": 0.6977639789130307,
+        "upper_confidence_bound": 0.8215273406869498,
         "alert": false
       },
       {
         "symbol": "R_100",
-        "window_end": 1793314080,
+        "window_end": 1793339640,
         "observations": 500,
         "stated_volatility": 1.0,
         "status": "ok",
-        "realized_volatility": 1.0343780812442767,
+        "realized_volatility": 0.9315707306824432,
         "confidence_level": 0.99,
-        "lower_confidence_bound": 0.9560412747003602,
-        "upper_confidence_bound": 1.1256156375613688,
+        "lower_confidence_bound": 0.8610198581971517,
+        "upper_confidence_bound": 1.0137401410219902,
         "alert": false
       },
       {
         "symbol": "1HZ10V",
-        "window_end": 1793314080,
+        "window_end": 1793339640,
         "observations": 500,
         "stated_volatility": 0.1,
         "status": "ok",
-        "realized_volatility": 0.10132013472467122,
+        "realized_volatility": 0.10521875050920243,
         "confidence_level": 0.99,
-        "lower_confidence_bound": 0.09364683234438255,
-        "upper_confidence_bound": 0.11025710048759373,
+        "lower_confidence_bound": 0.09725019331247904,
+        "upper_confidence_bound": 0.1144995945731539,
         "alert": false
       },
       {
         "symbol": "1HZ15V",
-        "window_end": 1793314080,
+        "window_end": 1793339640,
         "observations": 500,
         "stated_volatility": 0.15,
         "status": "ok",
-        "realized_volatility": 0.1477547084168421,
+        "realized_volatility": 0.15487618547139873,
         "confidence_level": 0.99,
-        "lower_confidence_bound": 0.13656476518517618,
-        "upper_confidence_bound": 0.16078744642119042,
+        "lower_confidence_bound": 0.14314690968769475,
+        "upper_confidence_bound": 0.16853707499559017,
         "alert": false
       },
       {
         "symbol": "1HZ25V",
-        "window_end": 1793314080,
+        "window_end": 1793339640,
         "observations": 500,
         "stated_volatility": 0.25,
         "status": "ok",
-        "realized_volatility": 0.2439368599202738,
+        "realized_volatility": 0.24658112898268325,
         "confidence_level": 0.99,
-        "lower_confidence_bound": 0.22546273043996037,
-        "upper_confidence_bound": 0.2654533666970011,
+        "lower_confidence_bound": 0.2279067404310031,
+        "upper_confidence_bound": 0.26833087411961326,
         "alert": false
       },
       {
         "symbol": "1HZ30V",
-        "window_end": 1793314080,
+        "window_end": 1793339640,
         "observations": 500,
         "stated_volatility": 0.3,
         "status": "ok",
-        "realized_volatility": 0.2995566502562931,
+        "realized_volatility": 0.31310068002044733,
         "confidence_level": 0.99,
-        "lower_confidence_bound": 0.27687025368083323,
-        "upper_confidence_bound": 0.32597911341893204,
+        "lower_confidence_bound": 0.2893885501481418,
+        "upper_confidence_bound": 0.34071779744033903,
         "alert": false
       },
       {
         "symbol": "1HZ50V",
-        "window_end": 1793314080,
+        "window_end": 1793339640,
         "observations": 500,
         "stated_volatility": 0.5,
         "status": "ok",
-        "realized_volatility": 0.48946987425717864,
+        "realized_volatility": 0.4950178017711078,
         "confidence_level": 0.99,
-        "lower_confidence_bound": 0.45240073334630837,
-        "upper_confidence_bound": 0.532643676977688,
+        "lower_confidence_bound": 0.4575284983178763,
+        "upper_confidence_bound": 0.5386809607126871,
         "alert": false
       },
       {
         "symbol": "1HZ75V",
-        "window_end": 1793314080,
+        "window_end": 1793339640,
         "observations": 500,
         "stated_volatility": 0.75,
         "status": "ok",
-        "realized_volatility": 0.7428895993475557,
+        "realized_volatility": 0.7334760193044979,
         "confidence_level": 0.99,
-        "lower_confidence_bound": 0.6866281608244459,
-        "upper_confidence_bound": 0.8084163471459249,
+        "lower_confidence_bound": 0.6779275017259538,
+        "upper_confidence_bound": 0.7981724401122848,
         "alert": false
       },
       {
         "symbol": "1HZ90V",
-        "window_end": 1793314080,
+        "window_end": 1793339640,
         "observations": 500,
         "stated_volatility": 0.9,
         "status": "ok",
-        "realized_volatility": 0.9632839950138555,
+        "realized_volatility": 0.9483031582508453,
         "confidence_level": 0.99,
-        "lower_confidence_bound": 0.8903313741757591,
-        "upper_confidence_bound": 1.048250681120263,
+        "lower_confidence_bound": 0.8764850847631318,
+        "upper_confidence_bound": 1.031948456208542,
         "alert": false
       },
       {
         "symbol": "1HZ100V",
-        "window_end": 1793314080,
+        "window_end": 1793339640,
         "observations": 500,
         "stated_volatility": 1.0,
         "status": "ok",
-        "realized_volatility": 1.0094577528362465,
+        "realized_volatility": 1.0064773489886156,
         "confidence_level": 0.99,
-        "lower_confidence_bound": 0.9330082435784077,
-        "upper_confidence_bound": 1.09849720586036,
+        "lower_confidence_bound": 0.9302535553795017,
+        "upper_confidence_bound": 1.095253914806565,
         "alert": false
       }
     ]
